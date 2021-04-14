@@ -6,10 +6,12 @@ import org.eclipse.paho.mqttv5.client.persist.MemoryPersistence;
 import org.eclipse.paho.mqttv5.common.MqttException;
 import org.eclipse.paho.mqttv5.common.MqttMessage;
 
-public class TestMain {
+public class TestMain2 {
 
 	public static void main(String[] args) {
 
+		
+		
         //String topic        = "MQTT Examples";
         String topic        = "sensors/temperature";
         //String content      = "Message from MqttPublishSample";
@@ -28,9 +30,18 @@ public class TestMain {
             sampleClient.connect(connOpts);
             System.out.println("Connected");
             System.out.println("Publishing message: "+content);
-            MqttMessage message = new MqttMessage(content.getBytes());
-            message.setQos(qos);
-            sampleClient.publish(topic, message);
+            
+            MqttMessage message_tmp;
+            String str_content_tmp;
+            for(int i=0; i<=1000; i++) {
+            	//str_content_tmp = content +":"+(i+1);
+            	str_content_tmp = content +":"+(0+1);
+            	message_tmp = new MqttMessage(str_content_tmp.getBytes());
+            	message_tmp.setQos(qos);
+                sampleClient.publish(topic, message_tmp);
+                Thread.sleep(1000);
+            }
+            
             System.out.println("Message published");
             //
             //sampleClient.disconnect();
@@ -43,7 +54,10 @@ public class TestMain {
             System.out.println("cause "+me.getCause());
             System.out.println("excep "+me);
             me.printStackTrace();
-        }
+        } catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
     }
 
 }
