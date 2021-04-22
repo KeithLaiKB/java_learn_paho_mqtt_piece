@@ -6,12 +6,10 @@ import org.eclipse.paho.mqttv5.client.persist.MemoryPersistence;
 import org.eclipse.paho.mqttv5.common.MqttException;
 import org.eclipse.paho.mqttv5.common.MqttMessage;
 
-public class TestMain2 {
+public class TestMain3 {
 
 	public static void main(String[] args) {
 
-		
-		
         //String topic        = "MQTT Examples";
         String topic        = "sensors/temperature";
         //String content      = "Message from MqttPublishSample";
@@ -23,7 +21,7 @@ public class TestMain2 {
         MemoryPersistence persistence = new MemoryPersistence();
 
         try {
-            MqttClient sampleClient = new MqttClient(broker, clientId, persistence);
+        	MqttClient sampleClient = new MqttClient(broker, clientId, persistence);
             MqttConnectionOptions connOpts = new MqttConnectionOptions();
             connOpts.setCleanStart(true);
             System.out.println("Connecting to broker: "+broker);
@@ -31,11 +29,14 @@ public class TestMain2 {
             System.out.println("Connected");
             System.out.println("Publishing message: "+content);
             
+            
+
+            
             MqttMessage message_tmp;
             String str_content_tmp;
             for(int i=0; i<=1000; i++) {
             	//str_content_tmp = content +":"+(i+1);
-            	str_content_tmp = content +":"+(0+1);
+            	str_content_tmp = content +":"+(i+1);
             	message_tmp = new MqttMessage(str_content_tmp.getBytes());
             	message_tmp.setQos(qos);
                 sampleClient.publish(topic, message_tmp);

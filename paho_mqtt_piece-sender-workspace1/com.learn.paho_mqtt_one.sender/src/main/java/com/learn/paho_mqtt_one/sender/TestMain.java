@@ -13,10 +13,12 @@ public class TestMain {
         //String topic        = "MQTT Examples";
         String topic        = "sensors/temperature";
         //String content      = "Message from MqttPublishSample";
-        String content      = "ÄãºÃ";
+        //String content      = "ÄãºÃ";
+        String content      = "hi_myfriend";
         int qos             = 2;
         //String broker       = "tcp://iot.eclipse.org:1883";
         String broker       = "tcp://localhost:1883";
+        //String broker       = "ssl://localhost:8883";
         String clientId     = "JavaSample";
         MemoryPersistence persistence = new MemoryPersistence();
 

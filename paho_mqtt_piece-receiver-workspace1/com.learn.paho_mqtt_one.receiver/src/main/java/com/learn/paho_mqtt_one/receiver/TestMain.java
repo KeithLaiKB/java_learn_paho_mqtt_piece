@@ -81,8 +81,9 @@ public class TestMain {
             System.out.println("subsribing message topic: " + topic);
 
             sampleClient.subscribe(topic,qos);
+
             
-            
+            System.out.println("wow_hello");
             
             
             
