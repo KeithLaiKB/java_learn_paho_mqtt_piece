@@ -19,6 +19,20 @@
         	<artifactId>org.eclipse.paho.mqttv5.client</artifactId>
         	<version>1.2.5</version>
     	</dependency>
+    	
+    	
+    	
+    	<!-- 额外自己增加的 为了看Log -->
+    	<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+			<version>1.7.30</version>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-simple</artifactId>
+			<version>1.7.30</version>
+		</dependency>
 	</dependencies>
 	<properties>
 	    <maven.compiler.source>13</maven.compiler.source>
