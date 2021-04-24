@@ -66,7 +66,8 @@ public class TestMain2 {
             // 也就是说 该subscribing client 
             //		一共可以接受 1 2 6
             //
-            // 我发现 publishing client 可以不用设置这个, 和下面的	setSessionExpiryInterval
+            // 我发现 publishing client 可以不用设置 	connOpts.setCleanStart(false) 和下面的	setSessionExpiryInterval
+            // 而且我还发现 publishing client 就算是 设置 connOpts.setCleanStart(true)  也没关系
             connOpts.setCleanStart(false);
             // 注意 订阅者 还要设置 会话过期时间, 单位是 秒, 
             // 如果不设置的话, 它默认是 0s, 则会导致 subscribing client 一共可以接受 1 2 6 而不是  1 2 3 4 5 6

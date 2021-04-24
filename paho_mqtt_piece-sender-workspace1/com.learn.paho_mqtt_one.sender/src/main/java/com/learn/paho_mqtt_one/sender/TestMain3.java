@@ -27,7 +27,8 @@ public class TestMain3 {
             MqttConnectionOptions connOpts = new MqttConnectionOptions();
             //connOpts.setCleanStart(false);
             //connOpts.setSessionExpiryInterval(100L);
-            connOpts.setCleanStart(false);
+            //connOpts.setCleanStart(false);
+            connOpts.setCleanStart(true);
 
             
             System.out.println("Connecting to broker: "+broker);
