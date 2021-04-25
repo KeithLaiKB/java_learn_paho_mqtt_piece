@@ -15,8 +15,10 @@ import org.eclipse.paho.mqttv5.client.persist.MemoryPersistence;
 import org.eclipse.paho.mqttv5.common.MqttException;
 import org.eclipse.paho.mqttv5.common.MqttMessage;
 import org.eclipse.paho.mqttv5.common.packet.MqttProperties;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-public class TestMain {
+public class TestMain_MultiRequest {
 
 	public static void main(String[] args) {
 
@@ -24,57 +26,106 @@ public class TestMain {
         String topic        = "sensors/temperature";
         //String content      = "Message from MqttPublishSample";
         String content      = "receiver";
-        int qos             = 0;
+        int qos             = 1;
         //String broker       = "tcp://iot.eclipse.org:1883";
         String broker       = "tcp://localhost:1883";
         //String clientId     = "JavaSample";
         String clientId     = "JavaSample_revcevier";
         MemoryPersistence persistence = new MemoryPersistence();
 
+        //final Logger LOGGER = LoggerFactory.getLogger(MqttClient.class);
+        final Logger LOGGER = LoggerFactory.getLogger(TestMain_MultiRequest.class);
         try {
             MqttClient sampleClient = new MqttClient(broker, clientId, persistence);
             MqttConnectionOptions connOpts = new MqttConnectionOptions();
             //
-            connOpts.setCleanStart(true);
-            
+            // 如果 setCleanStart(false) 意味着: 
+            // 你想要让 	订阅者		在	disconnect 之后  reconnect 
+            // 此外 该 		订阅者 	能够把  disconnect 到 reconnect 期间 	发布者  发送的消息 都全部获得
+            // 例如
+            // publishing client 	发送 		1	到	broker
+            // subscribing client	接受		1	从	broker
+            // publishing client 	发送 		2	到	broker
+            // subscribing client	接受		2	从	broker
+            // subscribing client	disconnect
+            // publishing client	发送		3	到	broker
+            // publishing client	发送		4	到	broker
+            // publishing client	发送		5	到	broker
+            // subscribing client	reconnect
+            // subscribing client	接受		3	从	broker
+            // subscribing client	接受		4	从	broker
+            // subscribing client	接受		5	从	broker
+            //
+            // publishing client	发送		6	到	broker
+            // subscribing client	接受		6	从	broker
+            //
+            // 也就是说 该subscribing client 
+            // 		一共可以接受 1 2 3 4 5 6 (假设 设置的会话过期时间(setSessionExpiryInterval) 足够的长, 能够保存所有的离线信息)
+            //
+            // 如果setCleanStart(true) 意味着:
+            // 也就是说 该subscribing client 
+            //		一共可以接受 1 2 6
+            //
+            // 我发现 publishing client 可以不用设置 	connOpts.setCleanStart(false) 和下面的	setSessionExpiryInterval
+            // 而且我还发现 publishing client 就算是 设置 connOpts.setCleanStart(true)  也没关系
+            connOpts.setCleanStart(false);
+            // 注意 订阅者 还要设置 会话过期时间, 单位是 秒, 
+            // 如果不设置的话, 它默认是 0s, 则会导致 subscribing client 一共可以接受 1 2 6 而不是  1 2 3 4 5 6
+            connOpts.setSessionExpiryInterval(100L);
+            //
+            //
+            //
             sampleClient.setCallback(new MqttCallback() {
 
 				@Override
 				public void disconnected(MqttDisconnectResponse disconnectResponse) {
 					// TODO Auto-generated method stub
-					System.out.println("mqtt disconnected");
+					//System.out.println("mqtt disconnected");
+					//
+					LOGGER.info("mqtt disconnected");
+					
 					
 				}
 
 				@Override
 				public void mqttErrorOccurred(MqttException exception) {
 					// TODO Auto-generated method stub
-					System.out.println("mqtt error occurred");
+					//System.out.println("mqtt error occurred");
+					//
+					LOGGER.info("mqtt error occurred");
+					
 				}
 
 				@Override
 				public void deliveryComplete(IMqttToken token) {
 					// TODO Auto-generated method stub
-					System.out.println("mqtt delivery complete");
+					//System.out.println("mqtt delivery complete");
+					//
+					LOGGER.info("mqtt delivery complete");
 				}
 
 				@Override
 				public void connectComplete(boolean reconnect, String serverURI) {
 					// TODO Auto-generated method stub
-					System.out.println("mqtt connect complete");
+					//System.out.println("mqtt connect complete");
+					//
+					LOGGER.info("mqtt connect complete");
 				}
 
 				@Override
 				public void authPacketArrived(int reasonCode, MqttProperties properties) {
 					// TODO Auto-generated method stub
-					System.out.println("mqtt auth Packet Arrived");
+					//System.out.println("mqtt auth Packet Arrived");
+					//
+					LOGGER.info("mqtt auth Packet Arrived");
 				}
 
 				@Override
 				public void messageArrived(String topic, MqttMessage message) throws Exception {
 					// TODO Auto-generated method stub
-					System.out.println("message Arrived:\t"
-							+ new String(message.getPayload()));
+					System.out.println("message Arrived:\t" + new String(message.getPayload()));
+					//
+					//LOGGER.info("message Arrived:\t"+ new String(message.getPayload()));
 				}
 
 
@@ -94,8 +145,10 @@ public class TestMain {
             while(int_choice!=-1) {
             	System.out.println("here is the choice:");
             	System.out.println("-1: to exit");
-            	System.out.println("0: to unsubscribe");
-            	System.out.println("1: to subscribe");
+            	System.out.println("1: to disconnect broker");
+            	System.out.println("2: to reconnect broker");
+            	System.out.println("3: to unsubscribe");
+            	System.out.println("4: to subscribe");
             	System.out.println("enter the choice:");
             	// input
             	int_choice = in.nextInt();
@@ -103,13 +156,21 @@ public class TestMain {
             		//System.exit(0);
             		break;
             	}
-            	else if(int_choice==0) {
-            		sampleClient.unsubscribe(topic);
-            		System.out.println("subscribed topic");
-            	}
             	else if(int_choice==1) {
-            		sampleClient.subscribe(topic,qos);
+            		sampleClient.disconnect();
+            		System.out.println("disconnected broker");
+            	}
+            	else if(int_choice==2) {
+            		sampleClient.reconnect();
+            		System.out.println("reconnect broker");
+            	}
+            	else if(int_choice==3) {
+            		sampleClient.unsubscribe(topic);
             		System.out.println("unsubscribed topic");
+            	}
+            	else if(int_choice==4) {
+            		sampleClient.subscribe(topic,qos);
+            		System.out.println("subscribed topic");
             	}
             }
             

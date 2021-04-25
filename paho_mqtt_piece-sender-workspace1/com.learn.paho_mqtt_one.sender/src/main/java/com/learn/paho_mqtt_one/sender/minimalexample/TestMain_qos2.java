@@ -23,7 +23,7 @@ public class TestMain_qos2 {
         MemoryPersistence persistence = new MemoryPersistence();
         
         
-        //QoS0
+        //QoS2
         //53144		->	1883	MQTT		Publish Message		hello_nihao
         //1883		->	53144	TCP			ACK
         //1883		->	53144	MQTT		Publish Received
