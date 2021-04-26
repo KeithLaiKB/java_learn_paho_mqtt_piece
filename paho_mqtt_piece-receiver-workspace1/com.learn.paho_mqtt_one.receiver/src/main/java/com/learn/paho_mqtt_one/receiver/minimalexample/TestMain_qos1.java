@@ -20,7 +20,7 @@ import org.slf4j.LoggerFactory;
 
 import com.learn.paho_mqtt_one.receiver.TestMain_MultiRequest;
 
-public class TestMain_qos0 {
+public class TestMain_qos1 {
 
 	public static void main(String[] args) {
 
@@ -28,14 +28,14 @@ public class TestMain_qos0 {
         String topic        = "sensors/temperature";
         //String content      = "Message from MqttPublishSample";
         String content      = "receiver";
-        int qos             = 0;
+        int qos             = 1;
         //String broker       = "tcp://iot.eclipse.org:1883";
         String broker       = "tcp://localhost:1883";
         //String clientId     = "JavaSample";
         String clientId     = "JavaSample_revcevier";
         MemoryPersistence persistence = new MemoryPersistence();
         //
-        final Logger LOGGER = LoggerFactory.getLogger(TestMain_qos0.class);
+        final Logger LOGGER = LoggerFactory.getLogger(TestMain_qos1.class);
 
         //
         // ---------------------------
@@ -46,7 +46,7 @@ public class TestMain_qos0 {
         // ---------------------------
         //
         //
-        // P(Qos0)、S(Qos0) == P(Qos0)、S(Qos1) == P(Qos0)、S(Qos2) 
+        // P(Qos1)、S(Qos1) == P(Qos1)、S(Qos2)
         //
         //
         //QoS0
@@ -58,12 +58,16 @@ public class TestMain_qos0 {
         //
         // ..... (connect detail about server)
         //
-        //QoS0 -> broker-> QoS0
+        //QoS1 -> broker-> QoS1
         //53144		->	1883	MQTT		Publish Message		hello_nihao
         //1883		->	53144	TCP			ACK
+        //1883		->	53144	MQTT		Publish Ack
+        //53144		->	1883	TCP			ACK
         //
         //1883		->	40003	MQTT		Publish Message		hello_nihao
         //40003		->	1883	TCP			ACK
+        //40003		->	1883	MQTT		Publish Ack
+        //1883		->	40003	TCP			ACK
         //
         //
         //

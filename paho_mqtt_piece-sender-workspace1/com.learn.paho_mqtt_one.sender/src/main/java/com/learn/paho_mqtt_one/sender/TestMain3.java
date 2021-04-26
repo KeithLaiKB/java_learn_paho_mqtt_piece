@@ -14,7 +14,7 @@ public class TestMain3 {
         String topic        = "sensors/temperature";
         //String content      = "Message from MqttPublishSample";
         String content      = "ÄãºÃ";
-        int qos             = 1;
+        int qos             = 2;
         //String broker       = "tcp://iot.eclipse.org:1883";
         String broker       = "tcp://localhost:1883";
         String clientId     = "JavaSample";
