@@ -18,7 +18,7 @@ import org.eclipse.paho.mqttv5.common.packet.MqttProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class TestMain_MultiRequest_TestCleanStart {
+public class TestMain_MultiRequest_TestCleanStart_auth {
 
 	public static void main(String[] args) {
 
@@ -26,20 +26,32 @@ public class TestMain_MultiRequest_TestCleanStart {
         String topic        = "sensors/temperature";
         //String content      = "Message from MqttPublishSample";
         String content      = "receiver";
-        int qos             = 2;
+        int qos             = 1;
         //String broker       = "tcp://iot.eclipse.org:1883";
         String broker       = "tcp://localhost:1883";
         //String clientId     = "JavaSample";
         String clientId     = "JavaSample_revcevier";
+        
+        String myuserName	= "IamPublisherOne";
+        String mypwd		= "123456";
+        
         MemoryPersistence persistence = new MemoryPersistence();
 
+
         //final Logger LOGGER = LoggerFactory.getLogger(MqttClient.class);
-        final Logger LOGGER = LoggerFactory.getLogger(TestMain_MultiRequest_TestCleanStart.class);
+        final Logger LOGGER = LoggerFactory.getLogger(TestMain_MultiRequest_TestCleanStart_auth.class);
         try {
             MqttClient sampleClient = new MqttClient(broker, clientId, persistence);
             //MqttClient sampleClient = new MqttClient(broker, clientId);
             //
             MqttConnectionOptions connOpts = new MqttConnectionOptions();
+            //
+            //
+            //
+            connOpts.setUserName(myuserName);
+            connOpts.setPassword(mypwd.getBytes());
+            //
+            //
             //
             // 如果 setCleanStart(false) 意味着: 
             // 你想要让 	订阅者		在	disconnect 之后  reconnect 
@@ -78,6 +90,7 @@ public class TestMain_MultiRequest_TestCleanStart {
             // 此时如果你还想获得订阅信息, 你还需要重新subscribe
             connOpts.setSessionExpiryInterval(500L);
             //
+            //connOpts.setCleanStart(true);
             //
             //
             sampleClient.setCallback(new MqttCallback() {
@@ -87,8 +100,8 @@ public class TestMain_MultiRequest_TestCleanStart {
 					// TODO Auto-generated method stub
 					//System.out.println("mqtt disconnected");
 					//
-					LOGGER.info("mqtt disconnected");
-					
+					//LOGGER.info("mqtt disconnected:"+disconnectResponse.getReturnCode()+"//"+disconnectResponse.getReasonString());
+					LOGGER.info("mqtt disconnected:"+disconnectResponse.toString());
 					
 				}
 
@@ -136,7 +149,7 @@ public class TestMain_MultiRequest_TestCleanStart {
 
 			});
             
-
+            
             System.out.println("Connecting to broker: "+broker);
             sampleClient.connect(connOpts);
             System.out.println("Connected");

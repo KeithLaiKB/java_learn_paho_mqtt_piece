@@ -22,7 +22,7 @@ public class TestMain3 {
 
         try {
         	MqttClient sampleClient = new MqttClient(broker, clientId, persistence);
-
+        	//MqttClient sampleClient = new MqttClient(broker, clientId);
         	
             MqttConnectionOptions connOpts = new MqttConnectionOptions();
             //connOpts.setCleanStart(false);

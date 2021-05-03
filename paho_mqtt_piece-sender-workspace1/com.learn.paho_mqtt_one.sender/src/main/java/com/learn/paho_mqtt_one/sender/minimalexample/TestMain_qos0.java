@@ -17,7 +17,7 @@ public class TestMain_qos0 {
         String content      = "hi_myfriend";
         int qos             = 0;
         //String broker       = "tcp://iot.eclipse.org:1883";
-        String broker       = "tcp://localhost:1883";
+        String broker       = "tcp://127.0.0.1:1883";
         //String broker       = "ssl://localhost:8883";
         String clientId     = "JavaSample";
         MemoryPersistence persistence = new MemoryPersistence();
