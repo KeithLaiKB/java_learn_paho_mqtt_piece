@@ -1,4 +1,4 @@
-package com.learn.paho_mqtt_one.sender.minimalexample.multi;
+package com.learn.paho_mqtt_one.sender.minimalexample.multi.notgoodexample;
 
 import org.eclipse.paho.mqttv5.client.IMqttToken;
 import org.eclipse.paho.mqttv5.client.MqttClient;

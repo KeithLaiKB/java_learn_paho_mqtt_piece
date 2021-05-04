@@ -41,8 +41,9 @@ public class TestMain_MultiRequest_TestCleanStart_auth {
         //final Logger LOGGER = LoggerFactory.getLogger(MqttClient.class);
         final Logger LOGGER = LoggerFactory.getLogger(TestMain_MultiRequest_TestCleanStart_auth.class);
         try {
-            MqttClient sampleClient = new MqttClient(broker, clientId, persistence);
+            MqttClient sampleClient = new MqttClient(broker, clientId, new MemoryPersistence());
             //MqttClient sampleClient = new MqttClient(broker, clientId);
+        	
             //
             MqttConnectionOptions connOpts = new MqttConnectionOptions();
             //
