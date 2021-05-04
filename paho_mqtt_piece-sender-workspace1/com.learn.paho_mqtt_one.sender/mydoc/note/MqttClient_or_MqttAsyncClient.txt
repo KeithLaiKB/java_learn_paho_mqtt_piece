@@ -1,0 +1,74 @@
+In some of my demos,
+I use *MqttAsyncClient* instead of *MqttClient*,
+because *MqttAsyncClient* can give me configurable possibility,
+
+-----------------------------------------------------------------
+-----------------------------------------------------------------
+One of the advantage:Using *MqttAsyncClient* 
+
+To be specific,
+In org.eclipse.paho.mqttv5.client, version 1.2.5, 
+*MqttClient* uses *MqttAsyncClient* to operate the client.
+but in *MqttClient*, you couldn't set the *DisconnectedBufferOptions*, because there is not api for *DisconnectedBufferOptions*,
+If I want to configure the *DisconnectedBufferOptions*, I need to use *MqttAsyncClient*.
+-----------------------------------------------------------------
+-----------------------------------------------------------------
+One of the advantage:Using *MqttClient* 
+
+Example:
+	purpose :
+		you could not publish or subscribe the topic, until you connect to the broker successfully
+
+
+In *MqttAsyncClient*, for this purpose
+	you need to manually write down the 	"client.connect(options, null, null).waitForCompletion(-1);" 
+
+
+
+In *MqttClient*,for this purpose
+	you just need to write down	           	"client.connect()"
+
+	it is more convenient,
+	because in *MqttClient*, during the process, it integrates the statement
+	"*MqttAsyncClient* .connect(options, null, null).waitForCompletion(getTimeToWait()); ",
+
+
+--------------------------------------------------------------------------
+--------------------------------------------------------------------------
+conclusion in Chinese version:
+结论:
+-------------------------------------
+-------------------------------------
+*MqttAsyncClient* 的优势:
+
+	*MqttAsyncClient* 的可操作性 会比 *MqttClient* 多一些
+	因为 *MqttClient* 没有api 可以操作  *DisconnectedBufferOptions*
+++++++++++++++++++
+*MqttClient*的优势:
+	在 org.eclipse.paho.mqttv5.client, version 1.2.5 中
+		*MqttClient* 用的就是 *MqttAsyncClient*,
+		只不过是, *MqttClient* 可能会集成多了 几句话 在一个功能上, 可能会方便一些
+
+例如
+目的是:
+	使得 connect 成功 之前 是不允许 进行 publish 或者 suscribe, 也就是阻塞自己
+
+对于 *MqttAsyncClient*
+	你必须手动写上
+	"client.connect(options, null, null).waitForCompletion(-1);" 
+
+
+对于 *MqttClient*
+	你只需要写上
+	"client.connect()"
+
+	所以 更方便一些,
+	因为在 *MqttClient* 中, 这个 connect() 的api 中途 他就已经包含了 下面这个 方法
+	*MqttAsyncClient* .connect(options, null, null).waitForCompletion(getTimeToWait());
+	
+
+-------------------------------------
+-------------------------------------
+
+
+
