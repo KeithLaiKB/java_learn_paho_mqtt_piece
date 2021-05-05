@@ -1,4 +1,4 @@
-package com.learn.paho_mqtt_one.sender.minimalexample.multi.withauth;
+package com.learn.paho_mqtt_one.sender.mwe.multi.withauth;
 
 import org.eclipse.paho.mqttv5.client.DisconnectedBufferOptions;
 import org.eclipse.paho.mqttv5.client.IMqttToken;
@@ -24,17 +24,19 @@ import org.eclipse.paho.mqttv5.common.MqttMessage;
  *	step5(操作):	关闭 docker mosquitto		!!!!!!!!!!!!!!!!!!!!!
  *
  *	step6(数据):	publisher 	继续发送 9 10 11 12
+ *	step7(操作):	关闭 publisher				!!!!!!!!!!!!!!!!!!!!!
+ *
  *	step7(操作):	然后 启动 docker mosquitto
  *
- *	step7(数据):	然后publisher 继续发送 13 14 15
+ *	step8(数据):	然后 启动 publisher 发送 12345 (因为我设计重新启动是从 1 2 3 4 5  6 7这样发) 
  *
- *	step8(操作):	然后 启动 subscriber
- *	step9(数据):	然后 subscriber 能接受 
+ *	step9(操作):	然后 启动 subscriber
+ *	step10(数据):	然后 subscriber 能接受 
  *								4 5 6 7 8
  *								      和
  *								9 10 11 12
  *								      和
- *								13 14 15
+ *								1 2 3 4 5
  *
  *  publisher(online)	-------------> 	mosquitto(online)  -------------->	subscriber(online)
  *  publisher(online) 	----123------> 	mosquitto(online)  -------------->	subscriber(online)
@@ -46,7 +48,7 @@ import org.eclipse.paho.mqttv5.common.MqttMessage;
  *  
  *  +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
  *  +++++++++++++++++++++++++			turn off subscriber		+++++++++++++++++++++++++++++++
- *  +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ *  +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
  *  publisher(online) 	-------------> 	mosquitto(online)  -------------->	subscriber(offline)
  *  publisher(online) 	----45678----> 	mosquitto(online)  -------------->	subscriber(offline)
  *  publisher(online) 	-------------> 	mosquitto(online)  -------------->	subscriber(offline)
@@ -64,30 +66,43 @@ import org.eclipse.paho.mqttv5.common.MqttMessage;
  *   9 10 11 12                            4 5 6 7 8
  *   
  *  +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ *  ++++++++++++++++++++++++++ 			turn off publisher			+++++++++++++++++++++++++++
+ *  +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ *  publisher(offline)	-------------> 	mosquitto(offline) -------------->	subscriber(offline)
+ *   9 10 11 12                            4 5 6 7 8
+ *  
+ *  +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
  *  ++++++++++++++++++++++++++ 			turn on broker			+++++++++++++++++++++++++++++++
+ *  +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ *  publisher(offline)	-------------> 	mosquitto(online) -------------->	subscriber(offline)
+ *   9 10 11 12                            4 5 6 7 8
+ *   
+ *  +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ *  ++++++++++++++++++++++++++ 			turn on publisher +++++++++++++++++++++++++++++++++++++
+ *  ++++++	因为 (setPersistBuffer(true)) 使得重新启动publisher 时	它 仍 保留 之前发送不出去的 9 10 11 12	+++++++
  *  +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
  *  publisher(online)	-------------> 	mosquitto(online) -------------->	subscriber(offline)
  *   9 10 11 12                            4 5 6 7 8
- *  publisher(online)	-9-10-11-12--> 	mosquitto(online) -------------->	subscriber(offline)
+ *  publisher(online)	-9-10-11-12--> 	mosquitto(online) --------------->	subscriber(offline)
  *   		                               4 5 6 7 8
  *  publisher(online)	-------------> 	mosquitto(online) -------------->	subscriber(offline)
  *  									 45678 9 10 11 12
- *  publisher(online)	--13-14-15---> 	mosquitto(online) -------------->	subscriber(offline)
+ *  publisher(online)	----12345----> 	mosquitto(online) -------------->	subscriber(offline)
  *  									 45678 9 10 11 12
  *  publisher(online)	-------------> 	mosquitto(online) -------------->	subscriber(offline)
- *  							     45678 9 10 11 12 13 14 15
+ *  							     45678 9 10 11 12 12345
  *  
  *  +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
  *  ++++++++++++++++++++++++++ 			turn on subscriber			+++++++++++++++++++++++++++
  *  +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
  *  publisher(online)	-------------> 	mosquitto(online) -456789101112131415-->subscriber(online)
  *  publisher(online)	-------------> 	mosquitto(online) --------------------->subscriber(online)
- *  							     									456789 10 11 12 13 14 15 							
+ *  							     									456789 10 11 12 123456							
  *
  *
  *
  */
-public class TestMain_Auth_MsqtOffl_MsqtOnl {
+public class TestMain_Auth_MsqtOffl_PubOffl_MsqtOnl_PubOnl {
 
 	public static void main(String[] args) {
 
@@ -103,25 +118,30 @@ public class TestMain_Auth_MsqtOffl_MsqtOnl {
         String myuserName	= "IamPublisherOne";
         String mypwd		= "123456";
         
-
-
+        
+        
         try {
         	//MqttClient sampleClient = new MqttClient(broker, clientId, new MemoryPersistence());
-        	//MqttAsyncClient sampleClient = new MqttAsyncClient(broker, clientId, new MqttDefaultFilePersistence());
-        	MqttAsyncClient sampleClient = new MqttAsyncClient(broker, clientId, new MemoryPersistence());
+        	MqttAsyncClient sampleClient = new MqttAsyncClient(broker, clientId, new MqttDefaultFilePersistence());
+        	//MqttAsyncClient sampleClient = new MqttAsyncClient(broker, clientId, new MemoryPersistence());
+        	//
         	//
         	//
         	// set connection options
             MqttConnectionOptions connOpts = new MqttConnectionOptions();
-            //connOpts.setCleanStart(false);
-            //connOpts.setSessionExpiryInterval(500L);
-            connOpts.setCleanStart(true);
+            connOpts.setCleanStart(false);
+            connOpts.setSessionExpiryInterval(500L);
+            //connOpts.setCleanStart(true);
             //
             //
+            //
+            // https://mosquitto.org/man/mosquitto-conf-5.html
+            // for mosquitto, anonymous log in is just allowed in local machine
+            // however, gernerally, the broker is deployed in the server, so the client would not in the same machine
+            // so here is authentication
             // authentication
             connOpts.setUserName(myuserName);
             connOpts.setPassword(mypwd.getBytes());
-            //
             //
             //------------------
             connOpts.setAutomaticReconnect(true);
@@ -129,7 +149,7 @@ public class TestMain_Auth_MsqtOffl_MsqtOnl {
             DisconnectedBufferOptions disconnect_bfOpt_1=new DisconnectedBufferOptions();
             // 初始化disconnectedBufferOptions
             disconnect_bfOpt_1.setBufferSize(100);//离线后最多缓存100条
-            disconnect_bfOpt_1.setPersistBuffer(false);  //不一直持续留存
+            disconnect_bfOpt_1.setPersistBuffer(true);  // 一直持续留存
             disconnect_bfOpt_1.setDeleteOldestMessages(false);//删除旧消息
             disconnect_bfOpt_1.setBufferEnabled(true);// 断开连接后进行缓存
             sampleClient.setBufferOpts(disconnect_bfOpt_1);

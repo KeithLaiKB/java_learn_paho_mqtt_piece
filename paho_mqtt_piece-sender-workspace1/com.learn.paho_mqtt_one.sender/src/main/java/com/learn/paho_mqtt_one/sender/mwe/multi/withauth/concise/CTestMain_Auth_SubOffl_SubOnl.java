@@ -1,4 +1,4 @@
-package com.learn.paho_mqtt_one.sender.minimalexample.multi.withauth;
+package com.learn.paho_mqtt_one.sender.mwe.multi.withauth.concise;
 
 import org.eclipse.paho.mqttv5.client.DisconnectedBufferOptions;
 import org.eclipse.paho.mqttv5.client.IMqttToken;
@@ -54,7 +54,7 @@ import org.eclipse.paho.mqttv5.common.MqttMessage;
  *
  *
  */
-public class TestMain_Auth_SubOffl_SubOnl {
+public class CTestMain_Auth_SubOffl_SubOnl {
 
 	public static void main(String[] args) {
 
@@ -84,6 +84,11 @@ public class TestMain_Auth_SubOffl_SubOnl {
             connOpts.setCleanStart(true);
             //
             //
+            //
+            // https://mosquitto.org/man/mosquitto-conf-5.html
+            // for mosquitto, anonymous log in is just allowed in local machine
+            // however, gernerally, the broker is deployed in the server, so the client would not in the same machine
+            // so here is authentication
             // authentication
             connOpts.setUserName(myuserName);
             connOpts.setPassword(mypwd.getBytes());
