@@ -91,12 +91,12 @@ public class Con_TestMain_Auth_MsqtOffl_MsqtOnl {
 
 	public static void main(String[] args) {
 
-        //String topic        = "MQTT Examples";
+
         String topic        = "sensors/temperature";
-        //String content      = "Message from MqttPublishSample";
+
         String content      = "hello";
         int qos             = 1;
-        //String broker       = "tcp://iot.eclipse.org:1883";
+
         String broker       = "tcp://localhost:1883";
         String clientId     = "JavaSample";
         
@@ -106,8 +106,6 @@ public class Con_TestMain_Auth_MsqtOffl_MsqtOnl {
 
 
         try {
-        	//MqttClient sampleClient = new MqttClient(broker, clientId, new MemoryPersistence());
-        	//MqttAsyncClient sampleClient = new MqttAsyncClient(broker, clientId, new MqttDefaultFilePersistence());
         	MqttAsyncClient sampleClient = new MqttAsyncClient(broker, clientId, new MemoryPersistence());
         	//
         	//

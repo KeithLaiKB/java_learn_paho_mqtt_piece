@@ -106,12 +106,12 @@ public class Con_TestMain_Auth_MsqtOffl_PubOffl_MsqtOnl_PubOnl {
 
 	public static void main(String[] args) {
 
-        //String topic        = "MQTT Examples";
+
         String topic        = "sensors/temperature";
-        //String content      = "Message from MqttPublishSample";
+
         String content      = "hello";
         int qos             = 1;
-        //String broker       = "tcp://iot.eclipse.org:1883";
+
         String broker       = "tcp://localhost:1883";
         String clientId     = "JavaSample";
         
@@ -121,9 +121,8 @@ public class Con_TestMain_Auth_MsqtOffl_PubOffl_MsqtOnl_PubOnl {
         
         
         try {
-        	//MqttClient sampleClient = new MqttClient(broker, clientId, new MemoryPersistence());
+      
         	MqttAsyncClient sampleClient = new MqttAsyncClient(broker, clientId, new MqttDefaultFilePersistence());
-        	//MqttAsyncClient sampleClient = new MqttAsyncClient(broker, clientId, new MemoryPersistence());
         	//
         	//
         	//
@@ -148,10 +147,10 @@ public class Con_TestMain_Auth_MsqtOffl_PubOffl_MsqtOnl_PubOnl {
             //------------------
             DisconnectedBufferOptions disconnect_bfOpt_1=new DisconnectedBufferOptions();
             // 初始化disconnectedBufferOptions
-            disconnect_bfOpt_1.setBufferSize(100);//离线后最多缓存100条
-            disconnect_bfOpt_1.setPersistBuffer(true);  // 一直持续留存
-            disconnect_bfOpt_1.setDeleteOldestMessages(false);//删除旧消息
-            disconnect_bfOpt_1.setBufferEnabled(true);// 断开连接后进行缓存
+            disconnect_bfOpt_1.setBufferSize(100);				//离线后最多缓存100条
+            disconnect_bfOpt_1.setPersistBuffer(true);  		// 一直持续留存
+            disconnect_bfOpt_1.setDeleteOldestMessages(false);	//删除旧消息
+            disconnect_bfOpt_1.setBufferEnabled(true);			// 断开连接后进行缓存
             sampleClient.setBufferOpts(disconnect_bfOpt_1);
             //------------------
             //

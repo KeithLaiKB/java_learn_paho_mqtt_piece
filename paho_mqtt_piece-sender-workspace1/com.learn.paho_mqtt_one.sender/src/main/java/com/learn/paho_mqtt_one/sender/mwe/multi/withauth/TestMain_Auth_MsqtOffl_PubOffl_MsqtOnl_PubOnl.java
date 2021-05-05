@@ -148,10 +148,10 @@ public class TestMain_Auth_MsqtOffl_PubOffl_MsqtOnl_PubOnl {
             //------------------
             DisconnectedBufferOptions disconnect_bfOpt_1=new DisconnectedBufferOptions();
             // 初始化disconnectedBufferOptions
-            disconnect_bfOpt_1.setBufferSize(100);//离线后最多缓存100条
-            disconnect_bfOpt_1.setPersistBuffer(true);  // 一直持续留存
-            disconnect_bfOpt_1.setDeleteOldestMessages(false);//删除旧消息
-            disconnect_bfOpt_1.setBufferEnabled(true);// 断开连接后进行缓存
+            disconnect_bfOpt_1.setBufferSize(100);				//离线后最多缓存100条
+            disconnect_bfOpt_1.setPersistBuffer(true);  		// 一直持续留存
+            disconnect_bfOpt_1.setDeleteOldestMessages(false);	//删除旧消息
+            disconnect_bfOpt_1.setBufferEnabled(true);			// 断开连接后进行缓存
             sampleClient.setBufferOpts(disconnect_bfOpt_1);
             //------------------
             //
