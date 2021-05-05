@@ -21,11 +21,20 @@ import org.eclipse.paho.mqttv5.common.MqttMessage;
  *
  *	step4(数据):	publisher 	发送45678
  *  
+ *	step5(操作):	关闭 docker mosquitto		!!!!!!!!!!!!!!!!!!!!!
+ *
+ *	step6(数据):	publisher 	继续发送 9 10 11 12
+ *	step7(操作):	然后 启动 docker mosquitto
+ *
+ *	step7(数据):	然后publisher 继续发送 13 14 15
+ *
  *	step8(操作):	然后 启动 subscriber
  *	step9(数据):	然后 subscriber 能接受 
- *								1 2 3
- *								      和
  *								4 5 6 7 8
+ *								      和
+ *								9 10 11 12
+ *								      和
+ *								13 14 15
  *
  *  publisher(online)	-------------> 	mosquitto(online)  -------------->	subscriber(online)
  *  publisher(online) 	----123------> 	mosquitto(online)  -------------->	subscriber(online)
@@ -44,17 +53,41 @@ import org.eclipse.paho.mqttv5.common.MqttMessage;
  *  									   4 5 6 7 8
  *  
  *  +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ *  ++++++++++++++++++++++++++ 			turn off broker			+++++++++++++++++++++++++++++++
+ *  ++++++	因为 (setBufferEnabled(true)) 使得 broker离线 时    publisher 能保存发送不出去的 9 10 11 12	+++++++
+ *  +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ *  publisher(online)	-------------> 	mosquitto(offline) -------------->	subscriber(offline)
+ *  									   4 5 6 7 8
+ *  publisher(online)	-9-10-11-12--> 	mosquitto(offline) -------------->	subscriber(offline)
+ *   		                               4 5 6 7 8
+ *  publisher(online)	-------------> 	mosquitto(offline) -------------->	subscriber(offline)
+ *   9 10 11 12                            4 5 6 7 8
+ *   
+ *  +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ *  ++++++++++++++++++++++++++ 			turn on broker			+++++++++++++++++++++++++++++++
+ *  +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ *  publisher(online)	-------------> 	mosquitto(online) -------------->	subscriber(offline)
+ *   9 10 11 12                            4 5 6 7 8
+ *  publisher(online)	-9-10-11-12--> 	mosquitto(online) -------------->	subscriber(offline)
+ *   		                               4 5 6 7 8
+ *  publisher(online)	-------------> 	mosquitto(online) -------------->	subscriber(offline)
+ *  									 45678 9 10 11 12
+ *  publisher(online)	--13-14-15---> 	mosquitto(online) -------------->	subscriber(offline)
+ *  									 45678 9 10 11 12
+ *  publisher(online)	-------------> 	mosquitto(online) -------------->	subscriber(offline)
+ *  							     45678 9 10 11 12 13 14 15
+ *  
+ *  +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
  *  ++++++++++++++++++++++++++ 			turn on subscriber			+++++++++++++++++++++++++++
  *  +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
- *  publisher(online)	-------------> 	mosquitto(online)  --4-5-6-7-8--->	subscriber(online)
- *  									   4 5 6 7 8
- *  publisher(online)	-------------> 	mosquitto(online)  -------------->	subscriber(online)
- *  							     										4 5 6 7 8							
+ *  publisher(online)	-------------> 	mosquitto(online) -456789101112131415-->subscriber(online)
+ *  publisher(online)	-------------> 	mosquitto(online) --------------------->subscriber(online)
+ *  							     									456789 10 11 12 13 14 15 							
  *
  *
  *
  */
-public class CTestMain_Auth_SubOffl_SubOnl {
+public class Con_TestMain_Auth_MsqtOffl_MsqtOnl {
 
 	public static void main(String[] args) {
 
@@ -73,8 +106,9 @@ public class CTestMain_Auth_SubOffl_SubOnl {
 
 
         try {
+        	//MqttClient sampleClient = new MqttClient(broker, clientId, new MemoryPersistence());
         	//MqttAsyncClient sampleClient = new MqttAsyncClient(broker, clientId, new MqttDefaultFilePersistence());
-        	MqttClient sampleClient = new MqttClient(broker, clientId, new MemoryPersistence());
+        	MqttAsyncClient sampleClient = new MqttAsyncClient(broker, clientId, new MemoryPersistence());
         	//
         	//
         	// set connection options
@@ -94,10 +128,23 @@ public class CTestMain_Auth_SubOffl_SubOnl {
             connOpts.setPassword(mypwd.getBytes());
             //
             //
+            //------------------
+            connOpts.setAutomaticReconnect(true);
+            //------------------
+            DisconnectedBufferOptions disconnect_bfOpt_1=new DisconnectedBufferOptions();
+            // 初始化disconnectedBufferOptions
+            disconnect_bfOpt_1.setBufferSize(100);				//离线后最多缓存100条
+            disconnect_bfOpt_1.setPersistBuffer(false);  		//不一直持续留存
+            disconnect_bfOpt_1.setDeleteOldestMessages(false);	//删除旧消息
+            disconnect_bfOpt_1.setBufferEnabled(true);			// 断开连接后进行缓存
+            sampleClient.setBufferOpts(disconnect_bfOpt_1);
+            //------------------
+            //
+            //
             // connect to broker
             System.out.println("Connecting to broker: "+broker);
-            sampleClient.connect(connOpts);									//如果是MqttClient 贼需要这个
-            //sampleClient.connect(connOpts, null, null).waitForCompletion(-1); 	//如果是MqttAsyncClient 贼需要这个
+            //sampleClient.connect(connOpts);									//如果是MqttClient 贼需要这个
+            sampleClient.connect(connOpts, null, null).waitForCompletion(-1); 	//如果是MqttAsyncClient 贼需要这个
             System.out.println("Connected");
             //
             //
@@ -106,7 +153,6 @@ public class CTestMain_Auth_SubOffl_SubOnl {
             StringBuffer str_content_tmp = new StringBuffer("");
             for(int i=0; i<=1000; i++) {
             	//
-            	//str_content_tmp = content +":"+(i+1);
             	str_content_tmp.delete(0, str_content_tmp.length()-1+1);
             	str_content_tmp.append(content +":"+(i+1));
             	//
@@ -115,13 +161,6 @@ public class CTestMain_Auth_SubOffl_SubOnl {
             	message_tmp.setRetained(false);
             	//
             	try {
-            		/*
-            		if(sampleClient.isConnected()==false) {
-            			sampleClient.reconnect();
-            			//
-
-            		}
-            		*/
                 	System.out.println("Publishing message: "+str_content_tmp);
                     sampleClient.publish(topic, message_tmp);
             	}
