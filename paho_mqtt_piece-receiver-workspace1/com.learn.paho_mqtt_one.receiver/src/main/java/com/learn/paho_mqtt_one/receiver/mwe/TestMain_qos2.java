@@ -1,4 +1,4 @@
-package com.learn.paho_mqtt_one.receiver.minimalexample;
+package com.learn.paho_mqtt_one.receiver.mwe;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -18,9 +18,7 @@ import org.eclipse.paho.mqttv5.common.packet.MqttProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.learn.paho_mqtt_one.receiver.TestMain_MultiRequest;
-
-public class TestMain_qos1 {
+public class TestMain_qos2 {
 
 	public static void main(String[] args) {
 
@@ -28,14 +26,14 @@ public class TestMain_qos1 {
         String topic        = "sensors/temperature";
         //String content      = "Message from MqttPublishSample";
         String content      = "receiver";
-        int qos             = 1;
+        int qos             = 2;
         //String broker       = "tcp://iot.eclipse.org:1883";
         String broker       = "tcp://localhost:1883";
         //String clientId     = "JavaSample";
         String clientId     = "JavaSample_revcevier";
         MemoryPersistence persistence = new MemoryPersistence();
         //
-        final Logger LOGGER = LoggerFactory.getLogger(TestMain_qos1.class);
+        final Logger LOGGER = LoggerFactory.getLogger(TestMain_qos2.class);
 
         //
         // ---------------------------
@@ -58,18 +56,30 @@ public class TestMain_qos1 {
         //
         // ..... (connect detail about server)
         //
-        //QoS1 -> broker-> QoS1
+        //QoS2 -> broker-> QoS2
         //53144		->	1883	MQTT		Publish Message		hello_nihao
         //1883		->	53144	TCP			ACK
-        //1883		->	53144	MQTT		Publish Ack
-        //53144		->	1883	TCP			ACK
         //
         //1883		->	40003	MQTT		Publish Message		hello_nihao
         //40003		->	1883	TCP			ACK
-        //40003		->	1883	MQTT		Publish Ack
+        //
+        //1883		->	53144	MQTT		Publish Received
+        //53144		->	1883	TCP			ACK
+        //
+        //53144		->	1883	MQTT		Publish Release
+        //1883		->	53144	TCP			ACK
+        //
+        //40003		->	1883	MQTT		Publish Received
         //1883		->	40003	TCP			ACK
         //
+        //1883		->	53144	MQTT		Publish Complete
+        //53157		->	1883	TCP			ACK
         //
+        //1883		->	40003	MQTT		Publish Release
+        //40003		->	1883	TCP			ACK
+        //
+        //40003		->	1883	MQTT		Publish Complete
+        //1883		->	40003	TCP			ACK
         //
         try {
             MqttClient sampleClient = new MqttClient(broker, clientId, persistence);

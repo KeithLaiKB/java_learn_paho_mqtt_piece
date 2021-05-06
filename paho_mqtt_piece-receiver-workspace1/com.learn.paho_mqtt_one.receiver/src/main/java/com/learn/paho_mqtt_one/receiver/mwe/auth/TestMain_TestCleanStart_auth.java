@@ -1,4 +1,4 @@
-package com.learn.paho_mqtt_one.receiver;
+package com.learn.paho_mqtt_one.receiver.mwe.auth;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -18,7 +18,7 @@ import org.eclipse.paho.mqttv5.common.packet.MqttProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class TestMain_MultiRequest {
+public class TestMain_TestCleanStart_auth {
 
 	public static void main(String[] args) {
 
@@ -31,13 +31,28 @@ public class TestMain_MultiRequest {
         String broker       = "tcp://localhost:1883";
         //String clientId     = "JavaSample";
         String clientId     = "JavaSample_revcevier";
+        
+        String myuserName	= "IamPublisherOne";
+        String mypwd		= "123456";
+        
         MemoryPersistence persistence = new MemoryPersistence();
 
+
         //final Logger LOGGER = LoggerFactory.getLogger(MqttClient.class);
-        final Logger LOGGER = LoggerFactory.getLogger(TestMain_MultiRequest.class);
+        final Logger LOGGER = LoggerFactory.getLogger(TestMain_TestCleanStart_auth.class);
         try {
-            MqttClient sampleClient = new MqttClient(broker, clientId, persistence);
+            MqttClient sampleClient = new MqttClient(broker, clientId, new MemoryPersistence());
+            //MqttClient sampleClient = new MqttClient(broker, clientId);
+        	
+            //
             MqttConnectionOptions connOpts = new MqttConnectionOptions();
+            //
+            //
+            //
+            connOpts.setUserName(myuserName);
+            connOpts.setPassword(mypwd.getBytes());
+            //
+            //
             //
             // 如果 setCleanStart(false) 意味着: 
             // 你想要让 	订阅者		在	disconnect 之后  reconnect 
@@ -71,8 +86,12 @@ public class TestMain_MultiRequest {
             connOpts.setCleanStart(false);
             // 注意 订阅者 还要设置 会话过期时间, 单位是 秒, 
             // 如果不设置的话, 它默认是 0s, 则会导致 subscribing client 一共可以接受 1 2 6 而不是  1 2 3 4 5 6
-            connOpts.setSessionExpiryInterval(100L);
+            // 注意 如果 你 disconnect 超过了 这个时间, 那么你 reconnect以后 就没办法 获取中间的 3 4 5，
+            // 并且你也没办法获取 reconnect 后面 publishing client 发送的6,
+            // 此时如果你还想获得订阅信息, 你还需要重新subscribe
+            connOpts.setSessionExpiryInterval(500L);
             //
+            //connOpts.setCleanStart(true);
             //
             //
             sampleClient.setCallback(new MqttCallback() {
@@ -82,8 +101,8 @@ public class TestMain_MultiRequest {
 					// TODO Auto-generated method stub
 					//System.out.println("mqtt disconnected");
 					//
-					LOGGER.info("mqtt disconnected");
-					
+					//LOGGER.info("mqtt disconnected:"+disconnectResponse.getReturnCode()+"//"+disconnectResponse.getReasonString());
+					LOGGER.info("mqtt disconnected:"+disconnectResponse.toString());
 					
 				}
 
