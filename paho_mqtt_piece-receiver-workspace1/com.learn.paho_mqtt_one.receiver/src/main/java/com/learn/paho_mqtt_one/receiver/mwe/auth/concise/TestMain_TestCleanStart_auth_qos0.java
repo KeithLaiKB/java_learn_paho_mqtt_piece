@@ -1,11 +1,8 @@
-package com.learn.paho_mqtt_one.receiver.mwe.auth;
+package com.learn.paho_mqtt_one.receiver.mwe.auth.concise;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
+
 import java.util.Scanner;
 
-import org.eclipse.paho.mqttv5.client.IMqttDeliveryToken;
 import org.eclipse.paho.mqttv5.client.IMqttToken;
 import org.eclipse.paho.mqttv5.client.MqttCallback;
 import org.eclipse.paho.mqttv5.client.MqttClient;
@@ -18,26 +15,25 @@ import org.eclipse.paho.mqttv5.common.packet.MqttProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class TestMain_TestCleanStart_auth {
+public class TestMain_TestCleanStart_auth_qos0 {
 
 	public static void main(String[] args) {
 
-        //String topic        = "MQTT Examples";
+
         String topic        = "sensors/temperature";
-        //String content      = "Message from MqttPublishSample";
-        String content      = "receiver";
+
+        //String content      = "receiver";
         int qos             = 1;
-        //String broker       = "tcp://iot.eclipse.org:1883";
+        
         String broker       = "tcp://localhost:1883";
-        //String clientId     = "JavaSample";
+        
         String clientId     = "JavaSample_revcevier";
         
         String myuserName	= "IamPublisherOne";
         String mypwd		= "123456";
         
-        MemoryPersistence persistence = new MemoryPersistence();
 
-        final Logger LOGGER = LoggerFactory.getLogger(TestMain_TestCleanStart_auth.class);
+        final Logger LOGGER = LoggerFactory.getLogger(TestMain_TestCleanStart_auth_qos0.class);
         //
         //
         try {
@@ -208,6 +204,8 @@ public class TestMain_TestCleanStart_auth {
             //sampleClient.disconnect();
             //System.out.println("Disconnected");
             //System.exit(0);
+            //
+            in.close();
         } catch(MqttException me) {
             System.out.println("reason "+me.getReasonCode());
             System.out.println("msg "+me.getMessage());
