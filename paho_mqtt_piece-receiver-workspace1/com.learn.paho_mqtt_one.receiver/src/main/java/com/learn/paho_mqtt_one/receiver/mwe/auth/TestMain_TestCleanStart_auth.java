@@ -37,18 +37,20 @@ public class TestMain_TestCleanStart_auth {
         
         MemoryPersistence persistence = new MemoryPersistence();
 
-
-        //final Logger LOGGER = LoggerFactory.getLogger(MqttClient.class);
         final Logger LOGGER = LoggerFactory.getLogger(TestMain_TestCleanStart_auth.class);
+        //
+        //
         try {
+        	// create mqtt client
             MqttClient sampleClient = new MqttClient(broker, clientId, new MemoryPersistence());
             //MqttClient sampleClient = new MqttClient(broker, clientId);
-        	
-            //
+        	//
+            //------------------------
+            // set option
             MqttConnectionOptions connOpts = new MqttConnectionOptions();
             //
             //
-            //
+            // set username and pwd
             connOpts.setUserName(myuserName);
             connOpts.setPassword(mypwd.getBytes());
             //
@@ -92,6 +94,7 @@ public class TestMain_TestCleanStart_auth {
             connOpts.setSessionExpiryInterval(500L);
             //
             //connOpts.setCleanStart(true);
+            //------------------------
             //
             //
             sampleClient.setCallback(new MqttCallback() {
@@ -149,16 +152,20 @@ public class TestMain_TestCleanStart_auth {
 
 
 			});
-            
-            
+            //
+            //
+            // connect
             System.out.println("Connecting to broker: "+broker);
             sampleClient.connect(connOpts);
             System.out.println("Connected");
             System.out.println("subsribing message topic: " + topic);
-
+            //
+            //
+            // subscribe
             sampleClient.subscribe(topic,qos);
-            
-            System.out.println("enter to exit!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+            //
+            //
+            //
             Scanner in =new Scanner(System.in) ;
             int int_choice = 0;
             while(int_choice!=-1) {
@@ -192,12 +199,12 @@ public class TestMain_TestCleanStart_auth {
             		System.out.println("subscribed topic");
             	}
             }
-            
+            //
             System.out.println("wow_hello");
-            
-            
-            
-            
+            //
+            //
+            //
+            //
             //sampleClient.disconnect();
             //System.out.println("Disconnected");
             //System.exit(0);

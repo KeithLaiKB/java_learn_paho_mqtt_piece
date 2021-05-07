@@ -114,13 +114,6 @@ public class Con_TestMain_Auth_SubOffl_SubOnl {
             	message_tmp.setRetained(false);
             	//
             	try {
-            		/*
-            		if(sampleClient.isConnected()==false) {
-            			sampleClient.reconnect();
-            			//
-
-            		}
-            		*/
                 	System.out.println("Publishing message: "+str_content_tmp);
                     sampleClient.publish(topic, message_tmp);
             	}
