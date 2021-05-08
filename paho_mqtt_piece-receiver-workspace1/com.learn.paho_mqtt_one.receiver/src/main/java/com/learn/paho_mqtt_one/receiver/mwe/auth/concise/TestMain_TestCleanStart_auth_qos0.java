@@ -23,7 +23,7 @@ public class TestMain_TestCleanStart_auth_qos0 {
         String topic        = "sensors/temperature";
 
         //String content      = "receiver";
-        int qos             = 1;
+        int qos             = 0;
         
         String broker       = "tcp://localhost:1883";
         
