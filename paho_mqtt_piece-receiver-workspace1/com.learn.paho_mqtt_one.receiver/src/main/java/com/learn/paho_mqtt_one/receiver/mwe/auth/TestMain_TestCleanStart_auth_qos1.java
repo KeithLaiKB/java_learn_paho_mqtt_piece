@@ -166,6 +166,10 @@ public class TestMain_TestCleanStart_auth_qos1 {
             //
             //
             //
+            System.out.println("wow_hello");
+            //
+            //
+            //------------------------------------------------------
             Scanner in =new Scanner(System.in) ;
             int int_choice = 0;
             while(int_choice!=-1) {
@@ -200,7 +204,6 @@ public class TestMain_TestCleanStart_auth_qos1 {
             	}
             }
             //
-            System.out.println("wow_hello");
             //
             //
             //

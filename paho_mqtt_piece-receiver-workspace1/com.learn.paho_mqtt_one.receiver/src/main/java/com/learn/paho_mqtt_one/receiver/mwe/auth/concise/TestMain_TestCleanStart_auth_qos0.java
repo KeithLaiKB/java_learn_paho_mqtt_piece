@@ -160,52 +160,11 @@ public class TestMain_TestCleanStart_auth_qos0 {
             // subscribe
             sampleClient.subscribe(topic,qos);
             //
-            //
-            //
-            Scanner in =new Scanner(System.in) ;
-            int int_choice = 0;
-            while(int_choice!=-1) {
-            	System.out.println("here is the choice:");
-            	System.out.println("-1: to exit");
-            	System.out.println("1: to disconnect broker");
-            	System.out.println("2: to reconnect broker");
-            	System.out.println("3: to unsubscribe");
-            	System.out.println("4: to subscribe");
-            	System.out.println("enter the choice:");
-            	// input
-            	int_choice = in.nextInt();
-            	if(int_choice==-1) {
-            		//System.exit(0);
-            		break;
-            	}
-            	else if(int_choice==1) {
-            		sampleClient.disconnect();
-            		System.out.println("disconnected broker");
-            	}
-            	else if(int_choice==2) {
-            		sampleClient.reconnect();
-            		System.out.println("reconnect broker");
-            	}
-            	else if(int_choice==3) {
-            		sampleClient.unsubscribe(topic);
-            		System.out.println("unsubscribed topic");
-            	}
-            	else if(int_choice==4) {
-            		sampleClient.subscribe(topic,qos);
-            		System.out.println("subscribed topic");
-            	}
-            }
-            //
             System.out.println("wow_hello");
             //
             //
-            //
-            //
-            //sampleClient.disconnect();
-            //System.out.println("Disconnected");
-            //System.exit(0);
-            //
-            in.close();
+            //------------------------------------------------------
+            
         } catch(MqttException me) {
             System.out.println("reason "+me.getReasonCode());
             System.out.println("msg "+me.getMessage());
