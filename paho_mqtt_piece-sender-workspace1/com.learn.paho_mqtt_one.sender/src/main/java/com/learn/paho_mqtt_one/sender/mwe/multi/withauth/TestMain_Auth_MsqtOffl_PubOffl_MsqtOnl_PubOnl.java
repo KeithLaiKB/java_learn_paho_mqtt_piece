@@ -125,27 +125,30 @@ public class TestMain_Auth_MsqtOffl_PubOffl_MsqtOnl_PubOnl {
         	MqttAsyncClient sampleClient = new MqttAsyncClient(broker, clientId, new MqttDefaultFilePersistence());
         	//MqttAsyncClient sampleClient = new MqttAsyncClient(broker, clientId, new MemoryPersistence());
         	//
-        	//
-        	//
-        	// set connection options
+        	// -----------------------set connection options-------------------------
+        	// 
             MqttConnectionOptions connOpts = new MqttConnectionOptions();
             connOpts.setCleanStart(false);
             connOpts.setSessionExpiryInterval(500L);
             //connOpts.setCleanStart(true);
             //
             //
+            // ------------------
+            // authentication
             //
             // https://mosquitto.org/man/mosquitto-conf-5.html
             // for mosquitto, anonymous log in is just allowed in local machine
             // however, gernerally, the broker is deployed in the server, so the client would not in the same machine
-            // so here is authentication
-            // authentication
             connOpts.setUserName(myuserName);
             connOpts.setPassword(mypwd.getBytes());
             //
-            //------------------
+            // ------------------
+            //
             connOpts.setAutomaticReconnect(true);
-            //------------------
+            //
+            // -------------------------------------------------------------------------
+            // -----------------------set  disconnected buffer options------------------
+            //
             DisconnectedBufferOptions disconnect_bfOpt_1=new DisconnectedBufferOptions();
             // 初始化disconnectedBufferOptions
             disconnect_bfOpt_1.setBufferSize(100);				//离线后最多缓存100条
@@ -153,7 +156,7 @@ public class TestMain_Auth_MsqtOffl_PubOffl_MsqtOnl_PubOnl {
             disconnect_bfOpt_1.setDeleteOldestMessages(false);	//删除旧消息
             disconnect_bfOpt_1.setBufferEnabled(true);			// 断开连接后进行缓存
             sampleClient.setBufferOpts(disconnect_bfOpt_1);
-            //------------------
+            // -------------------------------------------------------------------------
             //
             //
             // connect to broker

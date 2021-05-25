@@ -1,11 +1,9 @@
 package com.learn.paho_mqtt_one.receiver.mwe.auth;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
+
 import java.util.Scanner;
 
-import org.eclipse.paho.mqttv5.client.IMqttDeliveryToken;
+
 import org.eclipse.paho.mqttv5.client.IMqttToken;
 import org.eclipse.paho.mqttv5.client.MqttCallback;
 import org.eclipse.paho.mqttv5.client.MqttClient;
@@ -17,7 +15,21 @@ import org.eclipse.paho.mqttv5.common.MqttMessage;
 import org.eclipse.paho.mqttv5.common.packet.MqttProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
+/**
+ * 
+ * 
+ * <p>
+ * 							description:																			</br>	
+ * &emsp;						It would use the authentication(user name and password).							</br>
+ * &emsp;&emsp;						because some broker(like mosquitto, etc) needs authentication, 					</br>
+ * &emsp;&emsp;						if your client is not in the same local machine where your broker is deployed.	</br>	
+ * &emsp;						It uses qos0.																		</br>
+ * &emsp;																											</br>
+ * 																													</br>
+ * 
+ * @author laipl
+ *
+ */
 public class TestMain_TestCleanStart_auth_qos0 {
 
 	public static void main(String[] args) {
@@ -45,16 +57,19 @@ public class TestMain_TestCleanStart_auth_qos0 {
             MqttClient sampleClient = new MqttClient(broker, clientId, new MemoryPersistence());
             //MqttClient sampleClient = new MqttClient(broker, clientId);
         	//
-            //------------------------
-            // set option
+        	// -----------------------set connection options-------------------------
+        	// 
             MqttConnectionOptions connOpts = new MqttConnectionOptions();
             //
             //
-            // set username and pwd
+            // ------------------
+            // authentication
+            //
             connOpts.setUserName(myuserName);
             connOpts.setPassword(mypwd.getBytes());
             //
-            //
+            // ------------------
+            // set persistence
             //
             // 如果 setCleanStart(false) 意味着: 
             // 你想要让 	订阅者		在	disconnect 之后  reconnect 
@@ -94,8 +109,9 @@ public class TestMain_TestCleanStart_auth_qos0 {
             connOpts.setSessionExpiryInterval(500L);
             //
             //connOpts.setCleanStart(true);
-            //------------------------
             //
+            // -------------------------------------------------------------------------
+            // -----------------------set handler for asynchronous request--------------
             //
             sampleClient.setCallback(new MqttCallback() {
 
@@ -152,7 +168,8 @@ public class TestMain_TestCleanStart_auth_qos0 {
 
 
 			});
-            //
+            // -------------------------------------------------------------------------
+            // ---------------- to connect and to subscribe ----------------------------
             //
             // connect
             System.out.println("Connecting to broker: "+broker);

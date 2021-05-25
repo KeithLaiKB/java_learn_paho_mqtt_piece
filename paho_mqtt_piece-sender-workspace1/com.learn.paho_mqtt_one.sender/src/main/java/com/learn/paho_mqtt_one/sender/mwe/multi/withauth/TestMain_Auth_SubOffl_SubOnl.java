@@ -76,23 +76,25 @@ public class TestMain_Auth_SubOffl_SubOnl {
         	//MqttAsyncClient sampleClient = new MqttAsyncClient(broker, clientId, new MqttDefaultFilePersistence());
         	MqttClient sampleClient = new MqttClient(broker, clientId, new MemoryPersistence());
         	//
-        	//
-        	// set connection options
+        	// -----------------------set connection options-------------------------
+        	// 
             MqttConnectionOptions connOpts = new MqttConnectionOptions();
             //connOpts.setCleanStart(false);
             //connOpts.setSessionExpiryInterval(500L);
             connOpts.setCleanStart(true);
             //
             //
+            // ------------------
+            // authentication
             //
             // https://mosquitto.org/man/mosquitto-conf-5.html
             // for mosquitto, anonymous log in is just allowed in local machine
             // however, gernerally, the broker is deployed in the server, so the client would not in the same machine
-            // so here is authentication
-            // authentication
             connOpts.setUserName(myuserName);
             connOpts.setPassword(mypwd.getBytes());
             //
+            // ------------------
+            // -------------------------------------------------------------------------
             //
             // connect to broker
             System.out.println("Connecting to broker: "+broker);

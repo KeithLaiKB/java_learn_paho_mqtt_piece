@@ -14,8 +14,22 @@ import org.eclipse.paho.mqttv5.common.MqttMessage;
 import org.eclipse.paho.mqttv5.common.packet.MqttProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-public class TestMain_TestCleanStart_auth_qos0 {
+/**
+ * 
+ * 
+ * <p>
+ * 							description:																			</br>	
+ * &emsp;						It would use the authentication(user name and password).							</br>
+ * &emsp;&emsp;						because some broker(like mosquitto, etc) needs authentication, 					</br>
+ * &emsp;&emsp;						if your client is not in the same local machine where your broker is deployed.	</br>	
+ * &emsp;						It uses qos0.																		</br>
+ * &emsp;																											</br>
+ * 																													</br>
+ * 
+ * @author laipl
+ *
+ */
+public class Con_TestMain_TestCleanStart_auth_qos0 {
 
 	public static void main(String[] args) {
 
@@ -33,7 +47,7 @@ public class TestMain_TestCleanStart_auth_qos0 {
         String mypwd		= "123456";
         
 
-        final Logger LOGGER = LoggerFactory.getLogger(TestMain_TestCleanStart_auth_qos0.class);
+        final Logger LOGGER = LoggerFactory.getLogger(Con_TestMain_TestCleanStart_auth_qos0.class);
         //
         //
         try {
@@ -41,57 +55,26 @@ public class TestMain_TestCleanStart_auth_qos0 {
             MqttClient sampleClient = new MqttClient(broker, clientId, new MemoryPersistence());
             //MqttClient sampleClient = new MqttClient(broker, clientId);
         	//
-            //------------------------
-            // set option
+        	// -----------------------set connection options-------------------------
+        	// 
             MqttConnectionOptions connOpts = new MqttConnectionOptions();
             //
             //
-            // set username and pwd
+            // ------------------
+            // authentication
+            //
             connOpts.setUserName(myuserName);
             connOpts.setPassword(mypwd.getBytes());
             //
-            //
-            //
-            // 如果 setCleanStart(false) 意味着: 
-            // 你想要让 	订阅者		在	disconnect 之后  reconnect 
-            // 此外 该 		订阅者 	能够把  disconnect 到 reconnect 期间 	发布者  发送的消息 都全部获得
-            // 例如
-            // publishing client 	发送 		1	到	broker
-            // subscribing client	接受		1	从	broker
-            // publishing client 	发送 		2	到	broker
-            // subscribing client	接受		2	从	broker
-            // subscribing client	disconnect
-            // publishing client	发送		3	到	broker
-            // publishing client	发送		4	到	broker
-            // publishing client	发送		5	到	broker
-            // subscribing client	reconnect
-            // subscribing client	接受		3	从	broker
-            // subscribing client	接受		4	从	broker
-            // subscribing client	接受		5	从	broker
-            //
-            // publishing client	发送		6	到	broker
-            // subscribing client	接受		6	从	broker
-            //
-            // 也就是说 该subscribing client 
-            // 		一共可以接受 1 2 3 4 5 6 (假设 设置的会话过期时间(setSessionExpiryInterval) 足够的长, 能够保存所有的离线信息)
-            //
-            // 如果setCleanStart(true) 意味着:
-            // 也就是说 该subscribing client 
-            //		一共可以接受 1 2 6
-            //
-            // 我发现 publishing client 可以不用设置 	connOpts.setCleanStart(false) 和下面的	setSessionExpiryInterval
-            // 而且我还发现 publishing client 就算是 设置 connOpts.setCleanStart(true)  也没关系
+            // ------------------
+            // set persistence
             connOpts.setCleanStart(false);
-            // 注意 订阅者 还要设置 会话过期时间, 单位是 秒, 
-            // 如果不设置的话, 它默认是 0s, 则会导致 subscribing client 一共可以接受 1 2 6 而不是  1 2 3 4 5 6
-            // 注意 如果 你 disconnect 超过了 这个时间, 那么你 reconnect以后 就没办法 获取中间的 3 4 5，
-            // 并且你也没办法获取 reconnect 后面 publishing client 发送的6,
-            // 此时如果你还想获得订阅信息, 你还需要重新subscribe
             connOpts.setSessionExpiryInterval(500L);
             //
             //connOpts.setCleanStart(true);
-            //------------------------
             //
+            // -------------------------------------------------------------------------
+            // -----------------------set handler for asynchronous request--------------
             //
             sampleClient.setCallback(new MqttCallback() {
 
@@ -148,7 +131,8 @@ public class TestMain_TestCleanStart_auth_qos0 {
 
 
 			});
-            //
+            // -------------------------------------------------------------------------
+            // ---------------- to connect and to subscribe ----------------------------
             //
             // connect
             System.out.println("Connecting to broker: "+broker);
@@ -156,7 +140,7 @@ public class TestMain_TestCleanStart_auth_qos0 {
             System.out.println("Connected");
             System.out.println("subsribing message topic: " + topic);
             //
-            //
+            // 
             // subscribe
             sampleClient.subscribe(topic,qos);
             //
