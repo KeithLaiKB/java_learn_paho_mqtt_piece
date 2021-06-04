@@ -5,7 +5,18 @@ import org.eclipse.paho.mqttv5.client.MqttConnectionOptions;
 import org.eclipse.paho.mqttv5.client.persist.MemoryPersistence;
 import org.eclipse.paho.mqttv5.common.MqttException;
 import org.eclipse.paho.mqttv5.common.MqttMessage;
-
+/**
+ * 
+ * 
+ * <p>
+ * 							description:																			</br>	
+ * &emsp;						use same value to publish message each time 										</br>	
+ * 																													</br>
+ *
+ *
+ * @author laipl
+ *
+ */
 public class TestMain {
 
 	public static void main(String[] args) {

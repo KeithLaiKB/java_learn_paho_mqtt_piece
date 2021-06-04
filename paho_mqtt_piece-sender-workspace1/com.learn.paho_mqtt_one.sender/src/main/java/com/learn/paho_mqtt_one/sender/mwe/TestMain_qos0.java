@@ -5,7 +5,18 @@ import org.eclipse.paho.mqttv5.client.MqttConnectionOptions;
 import org.eclipse.paho.mqttv5.client.persist.MemoryPersistence;
 import org.eclipse.paho.mqttv5.common.MqttException;
 import org.eclipse.paho.mqttv5.common.MqttMessage;
-
+/**
+ * 
+ * 
+ * <p>
+ * 							description:																			</br>	
+ * &emsp;						use Quality of Service (QoS) level 0 to publish messages							</br>	
+ * 																													</br>
+ *
+ *
+ * @author laipl
+ *
+ */
 public class TestMain_qos0 {
 
 	public static void main(String[] args) {

@@ -7,7 +7,18 @@ import org.eclipse.paho.mqttv5.common.MqttException;
 import org.eclipse.paho.mqttv5.common.MqttMessage;
 
 public class TestMain3 {
-
+	/**
+	 * 
+	 * 
+	 * <p>
+	 * 							description:																			</br>	
+	 * &emsp;						use different value to publish message each time 									</br>	
+	 * 																													</br>
+	 *
+	 *
+	 * @author laipl
+	 *
+	 */
 	public static void main(String[] args) {
 
         //String topic        = "MQTT Examples";

@@ -49,6 +49,7 @@ import org.eclipse.paho.mqttv5.common.MqttMessage;
  *  							     										4 5 6 7 8							
  *
  *
+ *	use Quality of Service (QoS) level 0 to publish messages
  *
  */
 public class Con_TestMain_Auth_SubOffl_SubOnl_Qos0 {
