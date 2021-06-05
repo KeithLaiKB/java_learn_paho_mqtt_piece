@@ -86,6 +86,21 @@ import org.eclipse.paho.mqttv5.common.MqttMessage;
  *
  *
  *
+ * 
+ * <p>
+ * 							description:																			</br>	
+ * &emsp;						try set clean start 																</br>
+ * &emsp;						if when mosquitto config set 'persistence' to be true								</br>
+ * &emsp;						and publisher setCleanStart(False) with interval, 									</br>
+ * &emsp;						and setBufferEnabled(True), 														</br>
+ * &emsp;&emsp;						though the broker is crash or the broker is offline midway,						</br>
+ * &emsp;&emsp;&emsp;					broker will 																</br>
+ * &emsp;&emsp;&emsp;					remember the data in broker for a while										</br>
+ * 																													</br>
+ * 
+ * </p>
+ *
+ * 
  */
 public class Con_TestMain_Auth_MsqtOffl_MsqtOnl {
 

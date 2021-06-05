@@ -26,6 +26,7 @@ import org.slf4j.LoggerFactory;
  * &emsp;						It uses qos0.																		</br>
  * &emsp;																											</br>
  * 																													</br>
+ * </p>
  * 
  * @author laipl
  *

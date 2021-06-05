@@ -17,7 +17,31 @@ import org.eclipse.paho.mqttv5.common.MqttMessage;
 import org.eclipse.paho.mqttv5.common.packet.MqttProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
+/**
+ * 
+ * 
+ * <p>
+ * 							description:																			</br>	
+ * &emsp;						1. try set clean start 																</br>
+ * &emsp;						if when only subscriber setCleanStart(False) with interval, 						</br>
+ * &emsp;&emsp;						on the basis of not crashing the broker and not shutting down the broker,		</br>
+ * &emsp;&emsp;&emsp;					broker will 																</br>
+ * &emsp;&emsp;&emsp;					remember the subscriber when the *subscriber* is offline midway for while 	</br>
+ * 																													</br>
+ * &emsp;						2. try set clean start 																</br>
+ * &emsp;						if when mosquitto config set 'persistence' to be true								</br>
+ * &emsp;						and subscriber setCleanStart(False) with interval , 								</br>
+ * &emsp;&emsp;						though the broker is crash or the broker is offline,							</br>
+ * &emsp;&emsp;&emsp;					broker will 																</br>
+ * &emsp;&emsp;&emsp;					remember the subscriber when the *broker* is offline midway for while 		</br>
+ * &emsp;&emsp;&emsp;				notes: needs reconnect or auto reconnect in subscriber side						</br>
+ * &emsp;&emsp;&emsp;						 to get notification after broker restarts								</br>
+ * 																													</br>
+ * </p>
+ * 
+ * @author laipl
+ *
+ */
 public class TestMain_TestCleanStart {
 
 	public static void main(String[] args) {

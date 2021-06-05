@@ -27,6 +27,9 @@ import org.slf4j.LoggerFactory;
  * &emsp;						in this class, it just change qos0 to qos1											</br>
  * 																													</br>
  * 
+ * </p>
+ * 
+ * 
  * @author laipl
  *
  */

@@ -10,7 +10,7 @@ import org.eclipse.paho.mqttv5.common.MqttMessage;
  * 
  * <p>
  * 							description:																			</br>	
- * &emsp;						use same value to publish message each time 										</br>	
+ * &emsp;						use different value to publish message each time 									</br>	
  * 																													</br>
  *
  *
