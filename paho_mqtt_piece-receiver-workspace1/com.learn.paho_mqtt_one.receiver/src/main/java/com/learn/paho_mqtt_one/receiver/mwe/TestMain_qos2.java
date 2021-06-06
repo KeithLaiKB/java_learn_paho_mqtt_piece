@@ -43,7 +43,7 @@ public class TestMain_qos2 {
         // Subscriber	(port 40003)
         // ---------------------------
         //
-        //
+        // Qos×éºÏ
         // P(Qos1)¡¢S(Qos1) == P(Qos1)¡¢S(Qos2)
         //
         //
