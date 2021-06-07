@@ -130,52 +130,16 @@ class UT_TestQos {
 		System.out.println("###############################################server1.destroy");
 	}
 	
-	/**
-	 * 
-	 * 
-	 * <p>
-	 * 							description:																</br>	
-	 * &emsp;						hello_observer															</br>
-	 * &emsp;&emsp;						hello_observer_child1(client1 to delete, then client2 to observe)	</br>
-	 * &emsp;&emsp;&emsp;					hello_observer_child2											</br>
-	 * &emsp;&emsp;&emsp;&emsp;					hello_observer_child3										</br>
-	 * 																										</br>
-	 *
-	 * @author laipl
-	 *
-	 */
 	
-	// https://blog.csdn.net/qq1623803207/article/details/89518318
+	
+	/**
+	 * Qos combination
+     * P(Qos0)¡¢S(Qos0) == P(Qos0)¡¢S(Qos1) == P(Qos0)¡¢S(Qos2) 
+     * ref: https://blog.csdn.net/qq1623803207/article/details/89518318
+	 */
 	@Test
 	void testQos0() {
 		System.out.println("--------------------- testDelete_syn_then_observe_sameresc ----------------------------");
-		
-		
-		//----------------------- publisher side -----------------------------
-		try {
-            MqttClient pubClient = new MqttClient(broker, publisher_clientId, pub_persistence);
-            MqttConnectionOptions pub_connOpts = new MqttConnectionOptions();
-            pub_connOpts.setCleanStart(true);
-            System.out.println("Connecting to broker: "+broker);
-            pubClient.connect(pub_connOpts);
-            System.out.println("Connected");
-            System.out.println("Publishing message: "+content);
-            MqttMessage message = new MqttMessage(content.getBytes());
-            message.setQos(publisher_qos0);
-            pubClient.publish(topic, message);
-            System.out.println("Message published");
-            //
-            //sampleClient.disconnect();
-            //System.out.println("Disconnected");
-            //System.exit(0);
-        } catch(MqttException me) {
-            System.out.println("reason "+me.getReasonCode());
-            System.out.println("msg "+me.getMessage());
-            System.out.println("loc "+me.getLocalizedMessage());
-            System.out.println("cause "+me.getCause());
-            System.out.println("excep "+me);
-            me.printStackTrace();
-        }
 		//
 		//----------------------- subscriber side -----------------------------
 		try {
@@ -237,14 +201,14 @@ class UT_TestQos {
 
 			});
             
-            
+        
             System.out.println("Connecting to broker: "+broker);
             subClient.connect(sub_connOpts);
             System.out.println("Connected");
             System.out.println("subsribing message topic: " + topic);
             //--------------------------------------------------
             subClient.subscribe(topic, subscriber_qos0);		
-		
+            MyThreadSleep.sleep20s();
 
 		} 
 		catch(MqttException me) {
@@ -256,14 +220,36 @@ class UT_TestQos {
 			me.printStackTrace();
 		}
 		
-		
-		
-		
-		
+		//----------------------- publisher side -----------------------------
+		try {
+            MqttClient pubClient = new MqttClient(broker, publisher_clientId, pub_persistence);
+            MqttConnectionOptions pub_connOpts = new MqttConnectionOptions();
+            pub_connOpts.setCleanStart(true);
+            System.out.println("Connecting to broker: "+broker);
+            pubClient.connect(pub_connOpts);
+            System.out.println("Connected");
+            System.out.println("Publishing message: "+content);
+            MqttMessage message = new MqttMessage(content.getBytes());
+            message.setQos(publisher_qos0);
+            pubClient.publish(topic, message);
+            System.out.println("Message published");
+            //
+            //sampleClient.disconnect();
+            //System.out.println("Disconnected");
+            //System.exit(0);
+        } catch(MqttException me) {
+            System.out.println("reason "+me.getReasonCode());
+            System.out.println("msg "+me.getMessage());
+            System.out.println("loc "+me.getLocalizedMessage());
+            System.out.println("cause "+me.getCause());
+            System.out.println("excep "+me);
+            me.printStackTrace();
+        }
+		// sleep main function for getting the notification
+		MyThreadSleep.sleep20s();
 		//------------------------------------------------------------------------
 		//
-		// sleep main function for getting the last notification due to concurrency
-		MyThreadSleep.sleep20s();
+
         //
 		
         System.out.println("###############################################end");
