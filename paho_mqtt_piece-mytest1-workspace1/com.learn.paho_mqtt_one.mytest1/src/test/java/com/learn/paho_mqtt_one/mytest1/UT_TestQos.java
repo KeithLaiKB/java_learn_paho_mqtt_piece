@@ -34,6 +34,8 @@ class UT_TestQos {
     String topic        			= "sensors/temperature";
     String content      			= "hi_myfriend";
 	//
+    MqttMessage pub_message = null;
+    MqttMessage sub_message = null; 
     //----------------------------------------------------------
     //----------------------------------------------------------
     //
@@ -45,6 +47,9 @@ class UT_TestQos {
     MemoryPersistence sub_persistence 	= new MemoryPersistence();
 	//----------------------------------------------------------
     //----------------------------------------------------------
+    MqttClient pubClient = null;
+    MqttClient subClient = null;
+    //----------------------------------------------------------
     final Logger LOGGER = LoggerFactory.getLogger(UT_TestQos.class);
 	
 	//----------------------------------------------------------
@@ -55,28 +60,7 @@ class UT_TestQos {
 	
 	
 	static void datapreparation() {
-		/*
-		// set data vo to test
-		DtoFruit dtoFruit1 = new DtoFruit();
-		dtoFruit1.setName("i am apple");
-		dtoFruit1.setWeight(23.666);
-		//
-		//
-		// transform the vo into json
-		objectMapper = new ObjectMapper();
-		dtoFruit1AsString = new String("");
-		//
-		try {
-			dtoFruit1AsString = objectMapper.writeValueAsString(dtoFruit1);
-			// resp = client1.post(dtoFruit1AsString, MediaTypeRegistry.APPLICATION_JSON);
-		} catch (IOException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-		//
-		//
-		 */
-
+		
 	}
 	//
 	//
@@ -94,56 +78,30 @@ class UT_TestQos {
 	void beforesomething() {
 		System.out.println("---------------------------------------------------------");
 		//
-
+	    pub_message = null;
+	    sub_message = null; 
 		//
-		// -----------configure server-----------------------
-		// new server
-		
 		//
-		// -----------start server-----------------------
-		System.out.println("starting server");
-
-		System.out.println("started server");
-		//
-		//----------------------------------------------------
-		//--------------------- client1 ----------------------
-		//
-		// new client
-		
-		
-		// ----------- client1 observe -----------
-		System.out.println("+++++ sending request +++++");
-
-		System.out.println("++++++ sent request ++++++");
-		//----------------------------------------
-
-	}
-	
-	
-	@AfterEach
-	void aftersomething() {
-		// server side
-		
-		// client side
-		
-        //MyThreadSleep.sleep20s();
-		System.out.println("###############################################server1.destroy");
-	}
-	
-	
-	
-	/**
-	 * Qos combination
-     * P(Qos0)、S(Qos0) == P(Qos0)、S(Qos1) == P(Qos0)、S(Qos2) 
-     * ref: https://blog.csdn.net/qq1623803207/article/details/89518318
-	 */
-	@Test
-	void testQos0() {
-		System.out.println("--------------------- testDelete_syn_then_observe_sameresc ----------------------------");
-		//
-		//----------------------- subscriber side -----------------------------
-		try {
-            MqttClient subClient = new MqttClient(broker, subscriber_clientId, sub_persistence);
+		// ------------------------ configure publisher -----------------------
+	    try {
+			pubClient = new MqttClient(broker, publisher_clientId, pub_persistence);
+			MqttConnectionOptions pub_connOpts = new MqttConnectionOptions();
+            pub_connOpts.setCleanStart(true);
+            //
+            //
+            System.out.println("publisher Connecting to broker: "+broker);
+            pubClient.connect(pub_connOpts);
+            System.out.println("publisher Connected");
+		} catch (MqttException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	    //
+	    //
+	    MyThreadSleep.sleep5s();
+	    // ------------------------ configure subscriber -----------------------
+	    try {
+			subClient = new MqttClient(broker, subscriber_clientId, sub_persistence);
             MqttConnectionOptions sub_connOpts = new MqttConnectionOptions();
             // don't save the information during disconnected from subscribed status
             sub_connOpts.setCleanStart(true);
@@ -195,48 +153,109 @@ class UT_TestQos {
 					// TODO Auto-generated method stub
 					System.out.println("message Arrived:\t" + new String(message.getPayload()));
 					//
+					sub_message = message;
 					//LOGGER.info("message Arrived:\t"+ new String(message.getPayload()));
 				}
 
 
 			});
-            
-        
-            System.out.println("Connecting to broker: "+broker);
+            //
+            System.out.println("subscriber Connecting to broker: "+broker);
             subClient.connect(sub_connOpts);
-            System.out.println("Connected");
-            System.out.println("subsribing message topic: " + topic);
-            //--------------------------------------------------
-            subClient.subscribe(topic, subscriber_qos0);		
-            MyThreadSleep.sleep20s();
-
-		} 
-		catch(MqttException me) {
-			System.out.println("reason "+me.getReasonCode());
-			System.out.println("msg "+me.getMessage());
-			System.out.println("loc "+me.getLocalizedMessage());
-			System.out.println("cause "+me.getCause());
-			System.out.println("excep "+me);
-			me.printStackTrace();
+            System.out.println("subscriber Connected");
+		} catch (MqttException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	
+	@AfterEach
+	void aftersomething() {
+		//------------------------------------------------------------------------
+		// 
+		/* ref:
+		* /org.eclipse.paho.mqttv5.client.test/src/test/java/org/eclipse/paho/mqttv5/client/test/BasicSSLTest.java
+		*
+		for (int i = 0; i < mqttPublisher.length; i++) {
+			log.info("Disconnecting...MultiPub" + i);
+			mqttPublisher[i].disconnect();
+			log.info("Close...");
+			mqttPublisher[i].close();
+		}
+		for (int i = 0; i < mqttSubscriber.length; i++) {
+			log.info("Disconnecting...MultiSubscriber" + i);
+			mqttSubscriber[i].disconnect();
+			log.info("Close...");
+			mqttSubscriber[i].close();
+		}
+				*/		
+		// subscriber side
+		try {
+			
+			subClient.disconnect();
+			System.out.println("###############################################subscriber disconnected");
+			subClient.close();
+			System.out.println("###############################################subscriber closed");
+		} catch (MqttException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 		
+		// publisher side
+		try {
+			pubClient.disconnect();
+			System.out.println("###############################################publisher disconnected");
+			pubClient.close();
+			System.out.println("###############################################publisher closed");
+		} catch (MqttException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+        //MyThreadSleep.sleep20s();
+		
+	}
+	
+	
+	
+	/**
+	 * Qos combination
+     * P(Qos0)、S(Qos0) == P(Qos0)、S(Qos1) == P(Qos0)、S(Qos2) 
+     * ref: https://blog.csdn.net/qq1623803207/article/details/89518318
+	 */
+	@Test
+	void testQos0() {
+		System.out.println("--------------------- testDelete_syn_then_observe_sameresc ----------------------------");
+		//
+		int pub_qos_tmp = publisher_qos0;
+		int sub_qos_tmp = subscriber_qos0;
+		//
+		//----------------------- subscriber side -----------------------------
+		try {
+			// --------------------------------------------------
+			System.out.println("subsribing message topic: " + topic);
+			subClient.subscribe(topic, sub_qos_tmp);
+			//
+		} catch (MqttException me) {
+			System.out.println("reason " + me.getReasonCode());
+			System.out.println("msg " + me.getMessage());
+			System.out.println("loc " + me.getLocalizedMessage());
+			System.out.println("cause " + me.getCause());
+			System.out.println("excep " + me);
+			me.printStackTrace();
+		}
+		//
+		MyThreadSleep.sleep10s();
 		//----------------------- publisher side -----------------------------
 		try {
-            MqttClient pubClient = new MqttClient(broker, publisher_clientId, pub_persistence);
-            MqttConnectionOptions pub_connOpts = new MqttConnectionOptions();
-            pub_connOpts.setCleanStart(true);
-            System.out.println("Connecting to broker: "+broker);
-            pubClient.connect(pub_connOpts);
-            System.out.println("Connected");
+			//
             System.out.println("Publishing message: "+content);
-            MqttMessage message = new MqttMessage(content.getBytes());
-            message.setQos(publisher_qos0);
-            pubClient.publish(topic, message);
+            pub_message = new MqttMessage(content.getBytes());
+            pub_message.setQos(pub_qos_tmp);
+            pubClient.publish(topic, pub_message);
             System.out.println("Message published");
             //
-            //sampleClient.disconnect();
-            //System.out.println("Disconnected");
-            //System.exit(0);
         } catch(MqttException me) {
             System.out.println("reason "+me.getReasonCode());
             System.out.println("msg "+me.getMessage());
@@ -246,13 +265,9 @@ class UT_TestQos {
             me.printStackTrace();
         }
 		// sleep main function for getting the notification
-		MyThreadSleep.sleep20s();
-		//------------------------------------------------------------------------
+		MyThreadSleep.sleep10s();
 		//
-
-        //
-		
-        System.out.println("###############################################end");
+		assertEquals(new String(pub_message.getPayload()),new String(sub_message.getPayload()),"test_canceled_client1");
 
 	}
 	
