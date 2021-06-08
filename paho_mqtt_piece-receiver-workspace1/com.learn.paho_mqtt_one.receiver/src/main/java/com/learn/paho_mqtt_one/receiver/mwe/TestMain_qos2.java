@@ -44,10 +44,11 @@ public class TestMain_qos2 {
         // ---------------------------
         //
         // Qos怏栽
-        // P(Qos1)、S(Qos1) == P(Qos1)、S(Qos2)
+        // 1. P(Qos2)、S(Qos0)
+        // 2. P(Qos2)、S(Qos1)
+        // 2. P(Qos2)、S(Qos2)
         //
-        //
-        //QoS0
+        //QoS
         //connect detail about client
         //40003		->	1883	MQTT		Subscribe Request		sensor/temperature
         //1883		->	40003	TCP			ACK
@@ -57,29 +58,70 @@ public class TestMain_qos2 {
         // ..... (connect detail about server)
         //
         //QoS2 -> broker-> QoS2
-        //53144		->	1883	MQTT		Publish Message		hello_nihao
+        //53144		->	1883	MQTT		Publish Message		hello_nihao			pub 	-> broker
         //1883		->	53144	TCP			ACK
         //
-        //1883		->	40003	MQTT		Publish Message		hello_nihao
+        //1883		->	40003	MQTT		Publish Message		hello_nihao			broker 	-> sub
         //40003		->	1883	TCP			ACK
         //
-        //1883		->	53144	MQTT		Publish Received
+        //1883		->	53144	MQTT		Publish Received						broker 	-> pub
         //53144		->	1883	TCP			ACK
         //
-        //53144		->	1883	MQTT		Publish Release
+        //53144		->	1883	MQTT		Publish Release							pub 	-> broker
         //1883		->	53144	TCP			ACK
         //
-        //40003		->	1883	MQTT		Publish Received
+        //40003		->	1883	MQTT		Publish Received						sub 	-> broker
         //1883		->	40003	TCP			ACK
         //
-        //1883		->	53144	MQTT		Publish Complete
+        //1883		->	53144	MQTT		Publish Complete						broker 	-> pub
         //53157		->	1883	TCP			ACK
         //
-        //1883		->	40003	MQTT		Publish Release
+        //1883		->	40003	MQTT		Publish Release							broker 	-> sub
         //40003		->	1883	TCP			ACK
         //
-        //40003		->	1883	MQTT		Publish Complete
+        //40003		->	1883	MQTT		Publish Complete						sub 	-> broker
         //1883		->	40003	TCP			ACK
+        //
+        
+        //++++++++++++++++++++++++++++++++++++++++
+        //
+        //QoS2 -> broker-> QoS0
+        //53144		->	1883	MQTT		Publish Message		hello_nihao			pub 	-> broker		
+        //1883		->	53144	TCP			ACK
+        //
+        //1883		->	40003	MQTT		Publish Message		hello_nihao			broker 	-> sub
+        //40003		->	1883	TCP			ACK
+        //
+        //1883		->	53144	MQTT		Publish Received						broker 	-> pub
+        //53144		->	1883	TCP			ACK
+        //
+        //53144		->	1883	MQTT		Publish Release							pub 	-> broker
+        //1883		->	53144	TCP			ACK
+        //
+        //1883		->	53144	MQTT		Publish Complete						broker 	-> pub
+        //53157		->	1883	TCP			ACK
+        //
+        //++++++++++++++++++++++++++++++++++++++++
+        //
+        //QoS2 -> broker-> QoS1
+        //53144		->	1883	MQTT		Publish Message		hello_nihao			pub 	-> broker		
+        //1883		->	53144	TCP			ACK
+        //
+        //1883		->	40003	MQTT		Publish Message		hello_nihao			broker 	-> sub
+        //40003		->	1883	TCP			ACK
+        //
+        //1883		->	53144	MQTT		Publish Received						broker 	-> pub
+        //53144		->	1883	TCP			ACK
+        //
+        //53144		->	1883	MQTT		Publish Release							pub 	-> broker
+        //1883		->	53144	TCP			ACK
+        //
+        //1883		->	53144	MQTT		Publish Complete						broker 	-> pub
+        //53157		->	1883	TCP			ACK
+        //
+        //40003		->	1883	MQTT		Publish Ack								sub 	-> broker 
+        //1883		->	40003	TCP			ACK
+        //
         //
         try {
             MqttClient sampleClient = new MqttClient(broker, clientId, persistence);

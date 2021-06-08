@@ -98,7 +98,7 @@ class UT_TestQos {
 		}
 	    //
 	    //
-	    MyThreadSleep.sleep5s();
+	    //MyThreadSleep.sleep5s();
 	    // ------------------------ configure subscriber -----------------------
 	    try {
 			subClient = new MqttClient(broker, subscriber_clientId, sub_persistence);
@@ -167,6 +167,9 @@ class UT_TestQos {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	    //
+		// sleep main function for providing subscriber and publisher with enough time to connect the broker
+		MyThreadSleep.sleep2s();
 	}
 	
 	
@@ -201,7 +204,7 @@ class UT_TestQos {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+		//
 		// publisher side
 		try {
 			pubClient.disconnect();
@@ -212,9 +215,6 @@ class UT_TestQos {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
-        //MyThreadSleep.sleep20s();
-		
 	}
 	
 	
@@ -226,7 +226,7 @@ class UT_TestQos {
 	 */
 	@Test
 	void testQos0() {
-		System.out.println("--------------------- testDelete_syn_then_observe_sameresc ----------------------------");
+		System.out.println("--------------------- testQos0 ----------------------------");
 		//
 		int pub_qos_tmp = publisher_qos0;
 		int sub_qos_tmp = subscriber_qos0;
@@ -246,7 +246,8 @@ class UT_TestQos {
 			me.printStackTrace();
 		}
 		//
-		MyThreadSleep.sleep10s();
+		// sleep main function for providing subscriber with enough time to subscribe the broker
+		MyThreadSleep.sleep2s();
 		//----------------------- publisher side -----------------------------
 		try {
 			//
@@ -268,9 +269,277 @@ class UT_TestQos {
 		MyThreadSleep.sleep10s();
 		//
 		assertEquals(new String(pub_message.getPayload()),new String(sub_message.getPayload()),"test_canceled_client1");
-
+		//
 	}
 	
 	
+	/**
+	 * Qos combination
+     * P(Qos1)、S(Qos0)
+     * ref: https://blog.csdn.net/qq1623803207/article/details/89518318
+	 */
+	@Test
+	void test_pQos1_sQos0() {
+		System.out.println("--------------------- test_pQos1_sQos0 ----------------------------");
+		//
+		int pub_qos_tmp = publisher_qos1;
+		int sub_qos_tmp = subscriber_qos0;
+		//
+		//----------------------- subscriber side -----------------------------
+		try {
+			// --------------------------------------------------
+			System.out.println("subsribing message topic: " + topic);
+			subClient.subscribe(topic, sub_qos_tmp);
+			//
+		} catch (MqttException me) {
+			System.out.println("reason " + me.getReasonCode());
+			System.out.println("msg " + me.getMessage());
+			System.out.println("loc " + me.getLocalizedMessage());
+			System.out.println("cause " + me.getCause());
+			System.out.println("excep " + me);
+			me.printStackTrace();
+		}
+		//
+		// sleep main function for providing subscriber with enough time to subscribe the broker
+		MyThreadSleep.sleep2s();
+		//----------------------- publisher side -----------------------------
+		try {
+			//
+            System.out.println("Publishing message: "+content);
+            pub_message = new MqttMessage(content.getBytes());
+            pub_message.setQos(pub_qos_tmp);
+            pubClient.publish(topic, pub_message);
+            System.out.println("Message published");
+            //
+        } catch(MqttException me) {
+            System.out.println("reason "+me.getReasonCode());
+            System.out.println("msg "+me.getMessage());
+            System.out.println("loc "+me.getLocalizedMessage());
+            System.out.println("cause "+me.getCause());
+            System.out.println("excep "+me);
+            me.printStackTrace();
+        }
+		// sleep main function for getting the notification
+		MyThreadSleep.sleep10s();
+		//
+		assertEquals(new String(pub_message.getPayload()),new String(sub_message.getPayload()),"test_canceled_client1");
+		//
+	}	
+
+
+	/**
+	 * Qos combination
+     * P(Qos1)、S(Qos1) == P(Qos1)、S(Qos2)
+     * ref: https://blog.csdn.net/qq1623803207/article/details/89518318
+	 */
+	@Test
+	void test_pQos1_sQos1() {
+		System.out.println("--------------------- test_pQos1_sQos1 ----------------------------");
+		//
+		int pub_qos_tmp = publisher_qos1;
+		int sub_qos_tmp = subscriber_qos1;
+		//
+		//----------------------- subscriber side -----------------------------
+		try {
+			// --------------------------------------------------
+			System.out.println("subsribing message topic: " + topic);
+			subClient.subscribe(topic, sub_qos_tmp);
+			//
+		} catch (MqttException me) {
+			System.out.println("reason " + me.getReasonCode());
+			System.out.println("msg " + me.getMessage());
+			System.out.println("loc " + me.getLocalizedMessage());
+			System.out.println("cause " + me.getCause());
+			System.out.println("excep " + me);
+			me.printStackTrace();
+		}
+		//
+		// sleep main function for providing subscriber with enough time to subscribe the broker
+		MyThreadSleep.sleep2s();
+		//----------------------- publisher side -----------------------------
+		try {
+			//
+            System.out.println("Publishing message: "+content);
+            pub_message = new MqttMessage(content.getBytes());
+            pub_message.setQos(pub_qos_tmp);
+            pubClient.publish(topic, pub_message);
+            System.out.println("Message published");
+            //
+        } catch(MqttException me) {
+            System.out.println("reason "+me.getReasonCode());
+            System.out.println("msg "+me.getMessage());
+            System.out.println("loc "+me.getLocalizedMessage());
+            System.out.println("cause "+me.getCause());
+            System.out.println("excep "+me);
+            me.printStackTrace();
+        }
+		// sleep main function for getting the notification
+		MyThreadSleep.sleep10s();
+		//
+		assertEquals(new String(pub_message.getPayload()),new String(sub_message.getPayload()),"test_canceled_client1");
+		//
+	}
+	
+	
+	/**
+	 * Qos combination
+     * P(Qos2)、S(Qos0)
+     * ref: https://blog.csdn.net/qq1623803207/article/details/89518318
+	 */
+	@Test
+	void test_pQos2_sQos0() {
+		System.out.println("--------------------- test_pQos2_sQos0 ----------------------------");
+		//
+		int pub_qos_tmp = publisher_qos2;
+		int sub_qos_tmp = subscriber_qos0;
+		//
+		//----------------------- subscriber side -----------------------------
+		try {
+			// --------------------------------------------------
+			System.out.println("subsribing message topic: " + topic);
+			subClient.subscribe(topic, sub_qos_tmp);
+			//
+		} catch (MqttException me) {
+			System.out.println("reason " + me.getReasonCode());
+			System.out.println("msg " + me.getMessage());
+			System.out.println("loc " + me.getLocalizedMessage());
+			System.out.println("cause " + me.getCause());
+			System.out.println("excep " + me);
+			me.printStackTrace();
+		}
+		//
+		// sleep main function for providing subscriber with enough time to subscribe the broker
+		MyThreadSleep.sleep2s();
+		//----------------------- publisher side -----------------------------
+		try {
+			//
+            System.out.println("Publishing message: "+content);
+            pub_message = new MqttMessage(content.getBytes());
+            pub_message.setQos(pub_qos_tmp);
+            pubClient.publish(topic, pub_message);
+            System.out.println("Message published");
+            //
+        } catch(MqttException me) {
+            System.out.println("reason "+me.getReasonCode());
+            System.out.println("msg "+me.getMessage());
+            System.out.println("loc "+me.getLocalizedMessage());
+            System.out.println("cause "+me.getCause());
+            System.out.println("excep "+me);
+            me.printStackTrace();
+        }
+		// sleep main function for getting the notification
+		MyThreadSleep.sleep10s();
+		//
+		assertEquals(new String(pub_message.getPayload()),new String(sub_message.getPayload()),"test_canceled_client1");
+		//
+	}
+
+	
+	/**
+	 * Qos combination
+     * P(Qos2)、S(Qos1)
+     * ref: https://blog.csdn.net/qq1623803207/article/details/89518318
+	 */
+	@Test
+	void test_pQos2_sQos1() {
+		System.out.println("--------------------- test_pQos2_sQos1 ----------------------------");
+		//
+		int pub_qos_tmp = publisher_qos2;
+		int sub_qos_tmp = subscriber_qos1;
+		//
+		//----------------------- subscriber side -----------------------------
+		try {
+			// --------------------------------------------------
+			System.out.println("subsribing message topic: " + topic);
+			subClient.subscribe(topic, sub_qos_tmp);
+			//
+		} catch (MqttException me) {
+			System.out.println("reason " + me.getReasonCode());
+			System.out.println("msg " + me.getMessage());
+			System.out.println("loc " + me.getLocalizedMessage());
+			System.out.println("cause " + me.getCause());
+			System.out.println("excep " + me);
+			me.printStackTrace();
+		}
+		//
+		// sleep main function for providing subscriber with enough time to subscribe the broker
+		MyThreadSleep.sleep2s();
+		//----------------------- publisher side -----------------------------
+		try {
+			//
+            System.out.println("Publishing message: "+content);
+            pub_message = new MqttMessage(content.getBytes());
+            pub_message.setQos(pub_qos_tmp);
+            pubClient.publish(topic, pub_message);
+            System.out.println("Message published");
+            //
+        } catch(MqttException me) {
+            System.out.println("reason "+me.getReasonCode());
+            System.out.println("msg "+me.getMessage());
+            System.out.println("loc "+me.getLocalizedMessage());
+            System.out.println("cause "+me.getCause());
+            System.out.println("excep "+me);
+            me.printStackTrace();
+        }
+		// sleep main function for getting the notification
+		MyThreadSleep.sleep10s();
+		//
+		assertEquals(new String(pub_message.getPayload()),new String(sub_message.getPayload()),"test_canceled_client1");
+		//
+	}
+	
+	
+	/**
+	 * Qos combination
+     * P(Qos2)、S(Qos2)
+     * ref: https://blog.csdn.net/qq1623803207/article/details/89518318
+	 */
+	@Test
+	void test_pQos2_sQos2() {
+		System.out.println("--------------------- test_pQos2_sQos2 ----------------------------");
+		//
+		int pub_qos_tmp = publisher_qos2;
+		int sub_qos_tmp = subscriber_qos2;
+		//
+		//----------------------- subscriber side -----------------------------
+		try {
+			// --------------------------------------------------
+			System.out.println("subsribing message topic: " + topic);
+			subClient.subscribe(topic, sub_qos_tmp);
+			//
+		} catch (MqttException me) {
+			System.out.println("reason " + me.getReasonCode());
+			System.out.println("msg " + me.getMessage());
+			System.out.println("loc " + me.getLocalizedMessage());
+			System.out.println("cause " + me.getCause());
+			System.out.println("excep " + me);
+			me.printStackTrace();
+		}
+		//
+		// sleep main function for providing subscriber with enough time to subscribe the broker
+		MyThreadSleep.sleep2s();
+		//----------------------- publisher side -----------------------------
+		try {
+			//
+            System.out.println("Publishing message: "+content);
+            pub_message = new MqttMessage(content.getBytes());
+            pub_message.setQos(pub_qos_tmp);
+            pubClient.publish(topic, pub_message);
+            System.out.println("Message published");
+            //
+        } catch(MqttException me) {
+            System.out.println("reason "+me.getReasonCode());
+            System.out.println("msg "+me.getMessage());
+            System.out.println("loc "+me.getLocalizedMessage());
+            System.out.println("cause "+me.getCause());
+            System.out.println("excep "+me);
+            me.printStackTrace();
+        }
+		// sleep main function for getting the notification
+		MyThreadSleep.sleep10s();
+		//
+		assertEquals(new String(pub_message.getPayload()),new String(sub_message.getPayload()),"test_canceled_client1");
+		//
+	}	
 	
 }

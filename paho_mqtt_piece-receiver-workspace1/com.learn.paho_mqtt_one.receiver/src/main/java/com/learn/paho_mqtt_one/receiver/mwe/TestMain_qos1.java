@@ -44,10 +44,11 @@ public class TestMain_qos1 {
         // ---------------------------
         //
         // Qos组合
-        // P(Qos1)、S(Qos1) == P(Qos1)、S(Qos2)
+        // 1. P(Qos1)、S(Qos1) == P(Qos1)、S(Qos2)
+        // 2. P(Qos1)、S(Qos0)
         //
         //
-        //QoS0
+        //QoS
         //connect detail about client
         //40003		->	1883	MQTT		Subscribe Request		sensor/temperature
         //1883		->	40003	TCP			ACK
@@ -57,17 +58,50 @@ public class TestMain_qos1 {
         // ..... (connect detail about server)
         //
         //QoS1 -> broker-> QoS1
-        //53144		->	1883	MQTT		Publish Message		hello_nihao
+        //53144		->	1883	MQTT		Publish Message		hello_nihao				pub 	-> broker
         //1883		->	53144	TCP			ACK
-        //1883		->	53144	MQTT		Publish Ack
+        //
+        //1883		->	40003	MQTT		Publish Message		hello_nihao				broker 	-> sub
+        //40003		->	1883	TCP			ACK
+        //
+        //40003		->	1883	MQTT		Publish Ack									sub 	-> broker 
+        //1883		->	40003	TCP			ACK
+        //
+        //1883		->	53144	MQTT		Publish Ack									broker 	-> pub 
         //53144		->	1883	TCP			ACK
         //
-        //1883		->	40003	MQTT		Publish Message		hello_nihao
+        //
+        //++++++++++++++++++++++++++++++++++++++++
+        // 其实 P(Qos1)、S(Qos1) == P(Qos1)、S(Qos2)  可能你会疑问  既然相同为什么 这两块东西的 数据包顺序不一样
+        // 但注意 qos 主要作用在  pub和 broker 之间 ,   sub和 broker 之间
+        // 所以
+        // 我们 QoS1 -> broker-> QoS2 的 数据包 顺序  也有可能 和  QoS1 -> broker-> QoS1 一样
+        // 同样的
+        // 我们 QoS1 -> broker-> QoS1 的 数据包 顺序  也有可能 和  QoS1 -> broker-> QoS2 一样
+        //
+        //QoS1 -> broker-> QoS2
+        //53144		->	1883	MQTT		Publish Message		hello_nihao				pub 	-> broker
+        //1883		->	53144	TCP			ACK
+        //1883		->	53144	MQTT		Publish Ack									broker 	-> pub 
+        //53144		->	1883	TCP			ACK
+        //
+        //1883		->	40003	MQTT		Publish Message		hello_nihao				broker 	-> sub
         //40003		->	1883	TCP			ACK
-        //40003		->	1883	MQTT		Publish Ack
+        //40003		->	1883	MQTT		Publish Ack									sub 	-> broker 
         //1883		->	40003	TCP			ACK
         //
         //
+        //++++++++++++++++++++++++++++++++++++++++
+        //QoS1 -> broker-> QoS0
+        //53144		->	1883	MQTT		Publish Message		hello_nihao				pub 	-> broker
+        //1883		->	53144	TCP			ACK
+        //
+        //1883		->	40003	MQTT		Publish Message		hello_nihao				broker 	-> sub
+        //40003		->	1883	TCP			ACK
+        //
+        //1883		->	53144	MQTT		Publish Ack									broker 	-> pub
+        //53144		->	1883	TCP			ACK
+
         //
         try {
             MqttClient sampleClient = new MqttClient(broker, clientId, persistence);

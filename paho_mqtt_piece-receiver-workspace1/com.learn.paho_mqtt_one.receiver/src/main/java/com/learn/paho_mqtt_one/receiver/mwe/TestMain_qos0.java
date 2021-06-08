@@ -47,7 +47,7 @@ public class TestMain_qos0 {
         // P(Qos0)¡¢S(Qos0) == P(Qos0)¡¢S(Qos1) == P(Qos0)¡¢S(Qos2) 
         //
         //
-        //QoS0
+        //QoS
         //connect detail about client
         //40003		->	1883	MQTT		Subscribe Request		sensor/temperature
         //1883		->	40003	TCP			ACK
@@ -57,10 +57,10 @@ public class TestMain_qos0 {
         // ..... (connect detail about server)
         //
         //QoS0 -> broker-> QoS0
-        //53144		->	1883	MQTT		Publish Message		hello_nihao
+        //53144		->	1883	MQTT		Publish Message		hello_nihao				pub 	-> broker
         //1883		->	53144	TCP			ACK
         //
-        //1883		->	40003	MQTT		Publish Message		hello_nihao
+        //1883		->	40003	MQTT		Publish Message		hello_nihao				broker 	-> sub
         //40003		->	1883	TCP			ACK
         //
         //
