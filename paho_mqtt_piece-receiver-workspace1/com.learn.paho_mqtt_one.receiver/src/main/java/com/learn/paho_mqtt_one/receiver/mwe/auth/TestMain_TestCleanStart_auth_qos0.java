@@ -28,6 +28,13 @@ import org.slf4j.LoggerFactory;
  * 																													</br>
  * </p>
  * 
+ * 
+ * 注意 subscriber的 qos0 是无法reconnect的时候继续 获得信息
+ * 即使 他这里设置了
+ *           connOpts.setCleanStart(false);
+ *           connOpts.setSessionExpiryInterval(500L); 
+ * 
+ * 
  * @author laipl
  *
  */
@@ -39,7 +46,7 @@ public class TestMain_TestCleanStart_auth_qos0 {
         String topic        = "sensors/temperature";
         //String content      = "Message from MqttPublishSample";
         String content      = "receiver";
-        int qos             = 1;
+        int qos             = 0;
         //String broker       = "tcp://iot.eclipse.org:1883";
         String broker       = "tcp://localhost:1883";
         //String clientId     = "JavaSample";

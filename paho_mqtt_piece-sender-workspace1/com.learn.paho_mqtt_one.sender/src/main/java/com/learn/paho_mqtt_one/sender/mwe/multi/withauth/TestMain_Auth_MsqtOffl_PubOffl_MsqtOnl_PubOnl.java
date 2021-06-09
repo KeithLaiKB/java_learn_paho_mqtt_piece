@@ -99,7 +99,7 @@ import org.eclipse.paho.mqttv5.common.MqttMessage;
  *  publisher(online)	-------------> 	mosquitto(online) --------------------->subscriber(online)
  *  							     									456789 10 11 12 123456							
  *
- *
+
  *
  */
 public class TestMain_Auth_MsqtOffl_PubOffl_MsqtOnl_PubOnl {

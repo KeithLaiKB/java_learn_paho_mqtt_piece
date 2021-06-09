@@ -85,6 +85,20 @@ import org.eclipse.paho.mqttv5.common.MqttMessage;
  *  							     									456789 10 11 12 13 14 15 							
  *
  *
+ * 因为中途要 关闭 broker, 那么就  需要 在mosquitto.config 中 设置 persistence true
+ * 因为
+ * publisher 发送到broker 的消息 , 但subscriber因为中途突然下线 没收到
+ * 而这部分 subscriber的信息 broker是需要保存的,
+ * 可是broker 也因为关掉了, 但这部分存在broker的消息 会消失
+ * 为了使  broker因为中途不小心关机, 仍然能保存 这部分消息, 则需要 在mosquitto.config 中 设置 persistence true 
+ * 因为 broker需要保存 		
+ * 
+ * 因为broker需要记得 subscriber
+ * 在这里 还需要设置 subscriber 
+ * 	connOpts.setCleanStart(false);
+ * 	connOpts.setSessionExpiryInterval(500L);		//500是个时间 你可以随便设置
+ * 
+ * subscriber关闭后	 重启 		就可以直接获得 45678
  *
  */
 public class TestMain_Auth_MsqtOffl_MsqtOnl {

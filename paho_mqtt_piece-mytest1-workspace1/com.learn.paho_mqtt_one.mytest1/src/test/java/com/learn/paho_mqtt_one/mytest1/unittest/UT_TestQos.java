@@ -1,4 +1,4 @@
-package com.learn.paho_mqtt_one.mytest1;
+package com.learn.paho_mqtt_one.mytest1.unittest;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -17,6 +17,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.learn.paho_mqtt_one.mytest1.MyThreadSleep;
 
 class UT_TestQos {
 
