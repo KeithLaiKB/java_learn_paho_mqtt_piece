@@ -272,4 +272,26 @@ public class MyThreadSleep {
 		}
 		
 	}
+	
+	public static void sleep35s()
+	{
+        try {
+			Thread.sleep(35000);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+	}
+	
+	public static void sleep40s()
+	{
+        try {
+			Thread.sleep(35000);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+	}
 }
