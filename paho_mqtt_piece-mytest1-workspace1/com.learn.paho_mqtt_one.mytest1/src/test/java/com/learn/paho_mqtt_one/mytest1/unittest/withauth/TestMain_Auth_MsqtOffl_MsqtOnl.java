@@ -27,7 +27,7 @@ import org.slf4j.LoggerFactory;
 
 import com.learn.paho_mqtt_one.mytest1.MyThreadSleep;
 
-class TestMain_Auth_SubOffl_SubOnl {
+class TestMain_Auth_MsqtOffl_MsqtOnl {
 
     String broker       			= "tcp://127.0.0.1:1883";
     //
@@ -52,7 +52,7 @@ class TestMain_Auth_SubOffl_SubOnl {
     List<String> lst_content_send = new ArrayList<String>();
     List<String> lst_content_recv = new ArrayList<String>();
     //
-    int content_num_send = 15;
+    int content_num_send = 25;
     //
     //----------------------------------------------------------
     //----------------------------------------------------------
@@ -79,10 +79,10 @@ class TestMain_Auth_SubOffl_SubOnl {
 	//
 	ExecutorService mythread_executor1 = null;
     //----------------------------------------------------------
-    final Logger LOGGER = LoggerFactory.getLogger(TestMain_Auth_SubOffl_SubOnl.class);
+    final Logger LOGGER = LoggerFactory.getLogger(TestMain_Auth_MsqtOffl_MsqtOnl.class);
 	//----------------------------------------------------------
 	//
-	TestMain_Auth_SubOffl_SubOnl(){
+	TestMain_Auth_MsqtOffl_MsqtOnl(){
 		System.out.println("constructor");
 	}
 	
@@ -125,9 +125,6 @@ class TestMain_Auth_SubOffl_SubOnl {
             pub_connOpts.setUserName(myuserName);
             pub_connOpts.setPassword(mypwd.getBytes());
             //
-            System.out.println("publisher Connecting to broker: "+broker);
-            pubClient.connect(pub_connOpts);
-            System.out.println("publisher Connected");
 		} catch (MqttException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -240,6 +237,12 @@ class TestMain_Auth_SubOffl_SubOnl {
 			mqttSubscriber[i].close();
 		}
 				*/		
+		
+		//
+		//
+		mythread_executor1.shutdownNow();
+		//
+		MyThreadSleep.sleep5s();
 		// subscriber side
 		try {
 			//
@@ -264,9 +267,7 @@ class TestMain_Auth_SubOffl_SubOnl {
 			e.printStackTrace();
 		}
 		//
-		MyThreadSleep.sleep5s();
-		//
-		mythread_executor1.shutdownNow();
+
 	}
 	
 	
@@ -274,6 +275,9 @@ class TestMain_Auth_SubOffl_SubOnl {
 	/**
 	 * 
 	 * sub_connOpts.setCleanStart(true);
+	 * 
+	 * after broker restart
+	 * subscriber need reconnect
 	 * 
 	 */
 	@Test
@@ -285,14 +289,19 @@ class TestMain_Auth_SubOffl_SubOnl {
 		int sub_qos_tmp = subscriber_qos1;
 		//-----------------------------
 		//
+        // ------------------
+        //
         try {
+        	// you need to set publisher setAutomaticReconnect
+            // ------------------
+            //
+        	pub_connOpts.setAutomaticReconnect(true);
+            //
+            // -------------------------------------------------------------------------
         	//
-    		sub_connOpts.setCleanStart(true);
-    		//
-    		//
-            System.out.println("subscriber Connecting to broker: "+broker);
-            subClient.connect(sub_connOpts);
-            System.out.println("subscriber Connected");
+            System.out.println("publisher Connecting to broker: "+broker);
+            pubClient.connect(pub_connOpts);
+            System.out.println("publisher Connected");
             //
 		} catch (MqttSecurityException e1) {
 			// TODO Auto-generated catch block
@@ -302,63 +311,7 @@ class TestMain_Auth_SubOffl_SubOnl {
 			e1.printStackTrace();
 		}
         //
-		//---------------------------------------------------------------------
-		//----------------------- subscriber side -----------------------------
-		try {
-			// --------------------------------------------------
-			System.out.println("subsribing message topic: " + topic);
-			subClient.subscribe(topic, sub_qos_tmp);
-			//
-		} catch (MqttException me) {
-			System.out.println("reason " + me.getReasonCode());
-			System.out.println("msg " + me.getMessage());
-			System.out.println("loc " + me.getLocalizedMessage());
-			System.out.println("cause " + me.getCause());
-			System.out.println("excep " + me);
-			me.printStackTrace();
-		}
-		//
-		// sleep main function for providing subscriber with enough time to subscribe the broker
-		MyThreadSleep.sleep2s();
-		//
-		//-------------- thread -------------
-		Runnable serverRun_tmp = new ServerRun(pub_qos_tmp);
-		Thread thread_pub1 = new Thread(serverRun_tmp, "publisher1");
-		//
-		mythread_executor1.submit(thread_pub1);
-		//---------------------------
-		//
-		// sleep main function for getting the some notifications
-		// if you set more sleep time, subscriber might receive more notifications
-		MyThreadSleep.sleep40s();
-		//
-		//lst_content_recv.add("kkk");
-		//---------------------------
-		assertEquals(lst_content_send,lst_content_recv,"test_canceled_client1");
-		System.out.println("#######################testend");
-		//
-	}
-	
-	
-	/**
-	 * 
-	 * sub_connOpts.setCleanStart(false);
-	 * sub_connOpts.setSessionExpiryInterval(500L);
-	 * 
-	 * subClient.disconnect()
-	 * subClient.reconnect()
-	 * 
-	 * in 500 seconds interval, subscriber can get the notification when it use reconnect() without using subscribe() again
-	 * 
-	 */
-	@Test
-	void test_sub_reconnect() {
-		System.out.println("--------------------- test_sub_reconnect ----------------------------");
-		//
-		//
-		int pub_qos_tmp = publisher_qos1;
-		int sub_qos_tmp = subscriber_qos1;
-		//-----------------------------
+        // -------------------------------------------------------------------------
 		//
         try {
         	//
@@ -368,6 +321,11 @@ class TestMain_Auth_SubOffl_SubOnl {
     		// 500 seconds for broker to remember this subscriber
     		sub_connOpts.setSessionExpiryInterval(500L);
     		//
+            // ------------------
+            //
+    		sub_connOpts.setAutomaticReconnect(true);
+            //
+            // -------------------------------------------------------------------------
     		//
             System.out.println("subscriber Connecting to broker: "+broker);
             subClient.connect(sub_connOpts);
@@ -404,7 +362,7 @@ class TestMain_Auth_SubOffl_SubOnl {
 		//----------------------- publisher side -----------------------------
 		//
 		//-------------- thread -------------
-		Runnable serverRun_tmp = new ServerRun(pub_qos_tmp);
+		Runnable serverRun_tmp = new MyServerRun(pub_qos_tmp);
 		Thread thread_pub1 = new Thread(serverRun_tmp, "publisher1");
 		//
 		mythread_executor1.submit(thread_pub1);
@@ -415,49 +373,30 @@ class TestMain_Auth_SubOffl_SubOnl {
 		MyThreadSleep.sleep10s();
 		//
 		//lst_content_recv.add("kkk");
-		//
 		//---------------------------------------------------------------------
 		//----------------------- main test side ------------------------------
 		//
 		Scanner in = new Scanner(System.in);
 		String str_choice_tmp = null;
 		//
-		//----------------------- subscriber disconnect -----------------------
-		System.out.println("please press enter to disconnect your subscriber!!!!!!!!!!!!!!!!!!!!!!");
+		//
+		//----------------------- simulate broker crash ------------------------------
+		System.out.println("please close your broker and press enter here!!!!!!!!!!!!!!!!!!!!!!");
 		str_choice_tmp = in.nextLine();
-		try {
-			System.out.println("subscriber disconnecting");
-			subClient.disconnect();
-			//subClient.close();			// close 好像会把relationship给去掉, 所以应该是disconnect
-			System.out.println("subscriber disconnected");
-		} catch (MqttException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		//----------------------- simulate broker open ------------------------------
+		System.out.println("please wait for some seconds and open the the broker!!!!!!!!!!!!!!!!!!!!!!");
 		//
 		//
-		MyThreadSleep.sleep5s();
 		//
-		//
-		//----------------------- subscriber reconnect ------------------------------
-		System.out.println("please press enter to start your subscriber!!!!!!!!!!!!!!!!!!!!!!");
-		str_choice_tmp = in.nextLine();
-		try {
-			System.out.println("subscriber reconnecting");
-			subClient.reconnect();
-			//subClient.connect(sub_connOpts);
-			//subClient.subscribe(topic, sub_qos_tmp);
-			System.out.println("subscriber reconnected");
-		} catch (MqttException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		MyThreadSleep.sleep15s();
+		MyThreadSleep.sleep30s();
 		//
 		assertEquals(lst_content_send,lst_content_recv,"test_canceled_client1");
 		System.out.println("#######################testend");
 		//
 	}
+	
+	
+	
 	
 	
 	/**
@@ -486,7 +425,7 @@ class TestMain_Auth_SubOffl_SubOnl {
 	 *  publisher(online)	-------------> 	mosquitto(online)  -------------->	subscriber(online)
 	 *  							     										4 5 6 7 8	
 	 * 
-	 * <p>
+	 * </p>
 	 * 
 	 * description:
 	 * 		to simulate the condition when the subscriber crashed and rerun the program
@@ -503,6 +442,7 @@ class TestMain_Auth_SubOffl_SubOnl {
 	 * 
 	 * </p>
 	 */
+	/*
 	@Test
 	void test_sub_restart() {
 		System.out.println("--------------------- test_sub_restart ----------------------------");
@@ -556,7 +496,7 @@ class TestMain_Auth_SubOffl_SubOnl {
 		//----------------------- publisher side -----------------------------
 		//
 		//-------------- thread -------------
-		Runnable serverRun_tmp = new ServerRun(pub_qos_tmp);
+		Runnable serverRun_tmp = new MyServerRun(pub_qos_tmp);
 		Thread thread_pub1 = new Thread(serverRun_tmp, "publisher1");
 		//
 		mythread_executor1.submit(thread_pub1);
@@ -589,8 +529,8 @@ class TestMain_Auth_SubOffl_SubOnl {
 			e.printStackTrace();
 		}
 		//
-		MyThreadSleep.sleep5s();
 		//
+		MyThreadSleep.sleep5s();
 		//----------------------- simulate subscriber open after crash ------------------------------
 		System.out.println("please press enter to start your subscriber!!!!!!!!!!!!!!!!!!!!!!");
 		str_choice_tmp = in.nextLine();
@@ -610,11 +550,11 @@ class TestMain_Auth_SubOffl_SubOnl {
 		System.out.println("#######################testend");
 		//
 	}
+	*/
 	
-	
-	class ServerRun implements Runnable{
+	class MyServerRun implements Runnable{
 		private int qos_tmp = -1;
-		public ServerRun(int qos){
+		public MyServerRun(int qos){
 			this.qos_tmp = qos;
 		}
 		@Override
@@ -625,6 +565,12 @@ class TestMain_Auth_SubOffl_SubOnl {
 			//
 			for(int i=0; i<=content_num_send; i++) {
             	//
+                if (Thread.currentThread().isInterrupted()) {
+                    System.out.println("interrupted");
+                    break;
+                }
+				//
+				//
 	            //str_content_tmp = content +":"+(i+1);
 	            str_content_tmp.delete(0, str_content_tmp.length()-1+1);
 	            str_content_tmp.append(content +":"+(i+1));
@@ -638,20 +584,19 @@ class TestMain_Auth_SubOffl_SubOnl {
                 	System.out.println("Publishing message: "+str_content_tmp);
                 	pubClient.publish(topic, message_tmp);
                 	//
-                	// record what publisher sent for testing
-                	lst_content_send.add(str_content_tmp.toString());
-                	//
-                	Thread.sleep(2000);
             	}
             	catch(MqttException me) {
             		me.printStackTrace();
+            		MyThreadSleep.sleep2s();
+            		//
+            		// if publish wrong the content will not add in the lst_content_send
+            		continue;
             	}
+            	// if publish successfully
+            	// it need to record what publisher sent for testing
+            	lst_content_send.add(str_content_tmp.toString());
                 //
-            	catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-               
+            	MyThreadSleep.sleep2s();
             }
 			//
 			//

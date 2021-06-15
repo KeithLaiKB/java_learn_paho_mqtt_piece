@@ -48,6 +48,7 @@ import org.eclipse.paho.mqttv5.common.MqttMessage;
  *  
  *  +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
  *  +++++++++++++++++++++++++			turn off subscriber		+++++++++++++++++++++++++++++++
+ *  ++++++	要设置 subscriber 的 setCleantStart(false) 和 interval, 	使得 subscriber 重启 后   broker     仍然记得 这个subscriber 						+++++++
  *  +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
  *  publisher(online) 	-------------> 	mosquitto(online)  -------------->	subscriber(offline)
  *  publisher(online) 	----45678----> 	mosquitto(online)  -------------->	subscriber(offline)
@@ -56,8 +57,8 @@ import org.eclipse.paho.mqttv5.common.MqttMessage;
  *  
  *  +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
  *  ++++++++++++++++++++++++++ 			turn off broker			+++++++++++++++++++++++++++++++
- *  ++++++	因为 (setBufferEnabled(true)) 使得 broker离线 时    publisher 能保存发送不出去的 9 10 11 12	+++++++
- *  +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ *  ++++++	因为 (setBufferEnabled(true)) 						使得 broker	离线 时    publisher 保存		publisher 	发送不到	broker 		的 9 10 11 12	+++++++
+ *  ++++++	 此外 还需要 在mosquitto.config 中 设置 persistence true	使得 broker	重启 时    broker    仍保存 		broker 		发送不到	subscriber	的 4 5 6 7 8 	+++++++
  *  publisher(online)	-------------> 	mosquitto(offline) -------------->	subscriber(offline)
  *  									   4 5 6 7 8
  *  publisher(online)	-9-10-11-12--> 	mosquitto(offline) -------------->	subscriber(offline)
@@ -67,6 +68,9 @@ import org.eclipse.paho.mqttv5.common.MqttMessage;
  *   
  *  +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
  *  ++++++++++++++++++++++++++ 			turn off publisher			+++++++++++++++++++++++++++
+ *  ++++++	要设置  publisher 的 setCleantStart(false) 和 interval, 	使得 publisher 重启 后   broker     仍然记得 这个 publisher 							+++++++
+ *  ++++++	因为 (setPersistBuffer(true)) 使得						使得 publisher 重启 时    publisher 仍保存 	publisher 		发送不到	broker	的 9 10 11 12	+++++++
+ *  ++++++	要设置 publisher 的 MqttDefaultFilePersistence, 			使得 publisher 重启 后   publisher 仍保存 	publisher 		发送不到	broker	的 9 10 11 12+++++++
  *  +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
  *  publisher(offline)	-------------> 	mosquitto(offline) -------------->	subscriber(offline)
  *   9 10 11 12                            4 5 6 7 8
@@ -79,7 +83,6 @@ import org.eclipse.paho.mqttv5.common.MqttMessage;
  *   
  *  +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
  *  ++++++++++++++++++++++++++ 			turn on publisher +++++++++++++++++++++++++++++++++++++
- *  ++++++	因为 (setPersistBuffer(true)) 使得重新启动publisher 时	它 仍 保留 之前发送不出去的 9 10 11 12	+++++++
  *  +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
  *  publisher(online)	-------------> 	mosquitto(online) -------------->	subscriber(offline)
  *   9 10 11 12                            4 5 6 7 8
@@ -99,7 +102,48 @@ import org.eclipse.paho.mqttv5.common.MqttMessage;
  *  publisher(online)	-------------> 	mosquitto(online) --------------------->subscriber(online)
  *  							     									456789 10 11 12 123456							
  *
-
+ *
+ * ++++++++++++
+ * 为了让broker保存  45678(因为broker下线了 				broker		没来得及发送给  ------>subscriber) 
+ * 
+ * 因为中途要 关闭 broker, 那么就  需要 在mosquitto.config 中 设置 persistence true
+ * 因为
+ * publisher 发送到broker 的消息 , 但subscriber因为中途突然下线 没收到
+ * 而这部分 subscriber的信息 broker是需要保存的,
+ * 可是broker 也因为关掉了, 但这部分存在broker的消息 会消失
+ * 为了使  broker因为中途不小心关机, 仍然能保存 这部分消息, 则需要 在mosquitto.config 中 设置 persistence true 
+ * 因为 broker需要保存 		
+ * 
+ * 因为broker需要记得 subscriber
+ * 在这里 还需要设置 subscriber 
+ * 	connOpts.setCleanStart(false);
+ * 	connOpts.setSessionExpiryInterval(500L);		//500是个时间 你可以随便设置
+ * 
+ * subscriber关闭后	 重启 		就可以直接获得 45678
+ *
+ * ++++++++++++
+ *	为了让publisher 保存  9 10 11 12		(因为broker下线了 		publisher 	没来得及发送给  ------>broker) 
+ *
+ *  需要让 publisher 设置 (setBufferEnabled(true)), 
+ *  当然你不设置, 9 10 11 12 这一片段就会丢失 
+ * ++++++++++++
+ *	为了让publisher 不要丢失   9 10 11 12	(因为publisher 下线了 	publisher 	没来得及发送给  ------>broker) 
+ *
+ *  需要让 publisher 设置 (setPersistBuffer(true)), 
+ *  当然你不设置, 9 10 11 12 这一片段就会丢失 
+ * +++++++++++++++++++++++++++++++++
+ * 也就是说 这个例子 聚合了三个功能
+ * publisher 记住publisher 			未发送的	(publisher 一直在线, 没有重启)
+ * broker    记住broker		重启前 	 未发送的
+ * publisher 记住publisher	重启前 	 未发送的
+ * 
+ * 你在使用的时候看你需要 选择只添加哪一块, 
+ * 	我只是这里给了一个 比较自己常用的 解决方案
+ * 		因为 自己希望subscriber能记住 所有的东西
+ * 
+ * +++++++++++++++++++++++++++++++++
+ *
+ * 
  *
  */
 public class TestMain_Auth_MsqtOffl_PubOffl_MsqtOnl_PubOnl {

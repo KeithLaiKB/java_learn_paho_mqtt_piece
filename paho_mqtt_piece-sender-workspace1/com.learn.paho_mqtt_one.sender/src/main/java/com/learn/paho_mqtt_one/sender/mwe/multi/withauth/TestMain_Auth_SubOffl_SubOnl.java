@@ -37,6 +37,7 @@ import org.eclipse.paho.mqttv5.common.MqttMessage;
  *  
  *  +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
  *  +++++++++++++++++++++++++			turn off subscriber		+++++++++++++++++++++++++++++++
+ *  ++++++	要设置 subscriber 的 setCleantStart(false) 和 interval, 	使得 subscriber 重启 后   broker     仍然记得 这个subscriber 						+++++++
  *  +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
  *  publisher(online) 	-------------> 	mosquitto(online)  -------------->	subscriber(offline)
  *  publisher(online) 	----45678----> 	mosquitto(online)  -------------->	subscriber(offline)
@@ -51,14 +52,18 @@ import org.eclipse.paho.mqttv5.common.MqttMessage;
  *  publisher(online)	-------------> 	mosquitto(online)  -------------->	subscriber(online)
  *  							     										4 5 6 7 8							
  *
- * 如果你不关闭 broker, 那么就 不需要 在mosquitto.config 中 设置 persistence true
  * 
  * 因为broker需要记得 subscriber 在这里只需要设置 subscriber 
  * 	connOpts.setCleanStart(false);
  * 	connOpts.setSessionExpiryInterval(500L);		//500是个时间 你可以随便设置
  * 
+ * 注意 你还需要设置subscriber 的qos不能为0
+ * 因为 subscriber的 qos0 是无法reconnect的时候 或者  重新启动这个subscribe(从connect到 subscribe)继续 获得信息
+ * 
  * subscriber关闭后	 重启 		就可以直接获得 45678
  *
+ *
+ * 如果你不关闭 broker, 那么就 不需要 在mosquitto.config 中 设置 persistence true
  */
 public class TestMain_Auth_SubOffl_SubOnl {
 
@@ -137,7 +142,7 @@ public class TestMain_Auth_SubOffl_SubOnl {
             		me.printStackTrace();
             	}
                 //
-                Thread.sleep(10000);
+                Thread.sleep(5000);
             }
             
             System.out.println("Message published");
