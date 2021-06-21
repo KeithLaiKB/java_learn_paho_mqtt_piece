@@ -77,7 +77,8 @@ class TestMain_Auth_MsqtOffl_MsqtOnl {
 	Runnable serverRun_tmp = null;
 	Thread thread_pub1 = null;
 	//
-	ExecutorService mythread_executor1 = null;
+	ExecutorService myPubThread_executor1 = null;
+	ExecutorService mySubThread_executor1 = null;
     //----------------------------------------------------------
     final Logger LOGGER = LoggerFactory.getLogger(TestMain_Auth_MsqtOffl_MsqtOnl.class);
 	//----------------------------------------------------------
@@ -109,7 +110,8 @@ class TestMain_Auth_MsqtOffl_MsqtOnl {
 	    pub_message = null;
 	    sub_message = null; 
 		//
-	    mythread_executor1 = Executors.newFixedThreadPool(1);
+	    myPubThread_executor1 = Executors.newFixedThreadPool(1);
+	    mySubThread_executor1 = Executors.newFixedThreadPool(1);
 		//
 		// ------------------------ configure publisher -----------------------
 	    try {
@@ -240,7 +242,8 @@ class TestMain_Auth_MsqtOffl_MsqtOnl {
 		
 		//
 		//
-		mythread_executor1.shutdownNow();
+		
+		mySubThread_executor1.shutdownNow();
 		//
 		MyThreadSleep.sleep5s();
 		// subscriber side
@@ -256,6 +259,7 @@ class TestMain_Auth_MsqtOffl_MsqtOnl {
 		}
 		//
 		// publisher side
+		myPubThread_executor1.shutdownNow();
 		try {
 			//
 			pubClient.disconnect();
@@ -273,16 +277,70 @@ class TestMain_Auth_MsqtOffl_MsqtOnl {
 	
 	
 	/**
+	 * operation:
+	 * 1.	sub_connOpts.setCleanStart(true);
 	 * 
-	 * sub_connOpts.setCleanStart(true);
+	 * 2.	after broker restart
+	 * 			subscriber need reconnect
 	 * 
-	 * after broker restart
-	 * subscriber need reconnect
 	 * 
+	 * 
+	 *  publisher(online)	-------------> 	mosquitto(online)  -------------->	subscriber(online)
+	 *  publisher(online) 	----123------> 	mosquitto(online)  -------------->	subscriber(online)
+	 *  publisher(online) 	-------------> 	mosquitto(online)  -------------->	subscriber(online)
+	 *                     						123
+	 *  publisher(online) 	-------------> 	mosquitto(online)  ------123----->	subscriber(online)
+	 *  publisher(online) 	-------------> 	mosquitto(online)  ------123----->	subscriber(online)
+	 *  																			1 2 3
+	 *  
+
+	 *  
+	 *  +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+	 *  ++++++++++++++++++++++++++ 			turn off broker			+++++++++++++++++++++++++++++++
+	 *  ++++++	因为 (setBufferEnabled(true)) 							使得 broker离线 时    publisher 保存	publisher 	发送不到	broker 		的 9 10 11 12	+++++++
+	 *  ++++++	 此外 还需要 在mosquitto.config 中 设置 persistence true		使得 broker离线 时    broker  	保存  	broker 		发送不到	subscriber	的 4 5 6 7 8 	+++++++
+	 *  +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+	 *  publisher(online)	-------------> 	mosquitto(offline) -------------->	subscriber(online)
+	 *  									   4 5 6 7 8
+	 *  publisher(online)	-9-10-11-12--> 	mosquitto(offline) -------------->	subscriber(online)
+	 *   		                               4 5 6 7 8
+	 *  publisher(online)	-------------> 	mosquitto(offline) -------------->	subscriber(online)
+	 *   9 10 11 12                            4 5 6 7 8
+	 *   
+	 *  +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+	 *  ++++++++++++++++++++++++++ 			turn on broker			+++++++++++++++++++++++++++++++
+	 *  +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+	 *  publisher(online)	-------------> 	mosquitto(online) -------------->	subscriber(online)
+	 *   9 10 11 12                            4 5 6 7 8
+	 *  publisher(online)	------------->  mosquitto(online) -----45678---->	subscriber(online)
+	 *   9-10-11-12		                            
+	 *  publisher(online)	-9-10-11-12--> 	mosquitto(online) -------------->	subscriber(online)
+	 *   		                               										4 5 6 7 8
+	 *   
+	 *  publisher(online)	-------------> 	mosquitto(online) -------------->	subscriber(online)
+	 *  									  9 10 11 12
+	 *  publisher(online)	--13-14-15---> 	mosquitto(online) -------------->	subscriber(online)
+	 *  									  
+	 *  publisher(online)	-------------> 	mosquitto(online) ---9101112---->	subscriber(online)
+	 *  							     										9 10 11 12
+	 *  
+	 *  +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+	 *  ++++++++++++++++++++++++++ 			turn on subscriber			+++++++++++++++++++++++++++
+	 *  +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+	 *  publisher(online)	-------------> 	mosquitto(online) -456789101112131415-->subscriber(online)
+	 *  publisher(online)	-------------> 	mosquitto(online) --------------------->subscriber(online)
+	 *  							     									456789 10 11 12 13 14 15 		
+	 * 
+	 * 
+	 * 
+	 * 
+	 * 
+	 *
 	 */
+	
 	@Test
-	void test_sub_true_clean_start() {
-		System.out.println("--------------------- test_true_clean_start ----------------------------");
+	void test_brkoffline_subreconnect() {
+		System.out.println("--------------------- test_brkoffline_subreconnect ----------------------------");
 		//
 		//
 		int pub_qos_tmp = publisher_qos1;
@@ -362,15 +420,18 @@ class TestMain_Auth_MsqtOffl_MsqtOnl {
 		//----------------------- publisher side -----------------------------
 		//
 		//-------------- thread -------------
+		// 用 ExecutorService mythread_executor1 是为了 最后能够 停止这个thread, 
+		// 因为我发现 thread.stop 和 thread.interrupt 方法已经deprecated了
+		// 	网上推荐的方法使用ExecutorService 来最后停止 
 		Runnable serverRun_tmp = new MyServerRun(pub_qos_tmp);
 		Thread thread_pub1 = new Thread(serverRun_tmp, "publisher1");
 		//
-		mythread_executor1.submit(thread_pub1);
+		myPubThread_executor1.submit(thread_pub1);
 		//---------------------------
 		//
 		// sleep main function for getting the some notifications
 		// if you set more sleep time, subscriber might receive more notifications
-		MyThreadSleep.sleep10s();
+		MyThreadSleep.sleep6s();
 		//
 		//lst_content_recv.add("kkk");
 		//---------------------------------------------------------------------
@@ -381,14 +442,14 @@ class TestMain_Auth_MsqtOffl_MsqtOnl {
 		//
 		//
 		//----------------------- simulate broker crash ------------------------------
-		System.out.println("please close your broker and press enter here!!!!!!!!!!!!!!!!!!!!!!");
+		LOGGER.info("please close your broker and press enter here!!!!!!!!!!!!!!!!!!!!!!");
 		str_choice_tmp = in.nextLine();
 		//----------------------- simulate broker open ------------------------------
-		System.out.println("please wait for some seconds and open the the broker!!!!!!!!!!!!!!!!!!!!!!");
+		LOGGER.info("please wait for some seconds and open the the broker!!!!!!!!!!!!!!!!!!!!!!");
 		//
 		//
 		//
-		MyThreadSleep.sleep30s();
+		MyThreadSleep.sleep35s();
 		//
 		assertEquals(lst_content_send,lst_content_recv,"test_canceled_client1");
 		System.out.println("#######################testend");
@@ -397,9 +458,9 @@ class TestMain_Auth_MsqtOffl_MsqtOnl {
 	
 	
 	
-	
-	
 	/**
+	 * 
+	 * 
 	 * 
 	 *  publisher(online)	-------------> 	mosquitto(online)  -------------->	subscriber(online)
 	 *  publisher(online) 	----123------> 	mosquitto(online)  -------------->	subscriber(online)
@@ -411,6 +472,7 @@ class TestMain_Auth_MsqtOffl_MsqtOnl {
 	 *  
 	 *  +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 	 *  +++++++++++++++++++++++++			turn off subscriber		+++++++++++++++++++++++++++++++
+	 *  ++++++	要设置 subscriber 的 setCleantStart(false) 和 interval, 	使得 subscriber 重启 后   broker     仍然记得 这个subscriber 						+++++++
 	 *  +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 	 *  publisher(online) 	-------------> 	mosquitto(online)  -------------->	subscriber(offline)
 	 *  publisher(online) 	----45678----> 	mosquitto(online)  -------------->	subscriber(offline)
@@ -418,12 +480,348 @@ class TestMain_Auth_MsqtOffl_MsqtOnl {
 	 *  									   4 5 6 7 8
 	 *  
 	 *  +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+	 *  ++++++++++++++++++++++++++ 			turn off broker			+++++++++++++++++++++++++++++++
+	 *  ++++++	因为 (setBufferEnabled(true)) 							使得 broker离线 时    publisher 保存	publisher 	发送不到	broker 		的 9 10 11 12	+++++++
+	 *  ++++++	 此外 还需要 在mosquitto.config 中 设置 persistence true		使得 broker离线 时    broker  	保存  	broker 		发送不到	subscriber	的 4 5 6 7 8 	+++++++
+	 *  +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+	 *  publisher(online)	-------------> 	mosquitto(offline) -------------->	subscriber(offline)
+	 *  									   4 5 6 7 8
+	 *  publisher(online)	-9-10-11-12--> 	mosquitto(offline) -------------->	subscriber(offline)
+	 *   		                               4 5 6 7 8
+	 *  publisher(online)	-------------> 	mosquitto(offline) -------------->	subscriber(offline)
+	 *   9 10 11 12                            4 5 6 7 8
+	 *   
+	 *  +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+	 *  ++++++++++++++++++++++++++ 			turn on broker			+++++++++++++++++++++++++++++++
+	 *  +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+	 *  publisher(online)	-------------> 	mosquitto(online) -------------->	subscriber(offline)
+	 *   9 10 11 12                            4 5 6 7 8
+	 *  publisher(online)	-9-10-11-12--> 	mosquitto(online) -------------->	subscriber(offline)
+	 *   		                               4 5 6 7 8
+	 *  publisher(online)	-------------> 	mosquitto(online) -------------->	subscriber(offline)
+	 *  									 45678 9 10 11 12
+	 *  publisher(online)	--13-14-15---> 	mosquitto(online) -------------->	subscriber(offline)
+	 *  									 45678 9 10 11 12
+	 *  publisher(online)	-------------> 	mosquitto(online) -------------->	subscriber(offline)
+	 *  							     45678 9 10 11 12 13 14 15
+	 *  
+	 *  +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 	 *  ++++++++++++++++++++++++++ 			turn on subscriber			+++++++++++++++++++++++++++
 	 *  +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-	 *  publisher(online)	-------------> 	mosquitto(online)  --4-5-6-7-8--->	subscriber(online)
+	 *  publisher(online)	-------------> 	mosquitto(online) -456789101112131415-->subscriber(online)
+	 *  publisher(online)	-------------> 	mosquitto(online) --------------------->subscriber(online)
+	 *  							     									456789 10 11 12 13 14 15 		
+	 * 
+	 * 
+	 * </p>
+	 * 
+	 * description:
+	 * 		to simulate the condition when the subscriber crashed and rerun the program
+	 * 		so the program will rerun which means it needs connect and subscribe after crash
+	 * 
+	 * you need to set:
+	 * 		sub_connOpts.setCleanStart(false);
+	 * 		sub_connOpts.setSessionExpiryInterval(500L);
+	 * 
+	 * and use
+	 * 		subClient.connect(sub_connOpts);
+	 * 		subClient.subscribe(topic, sub_qos_tmp);
+	 * 
+	 * 
+	 * </p>
+	 * 
+	 * 
+	 */
+	
+	@Test
+	void test_brkoffline_sub_subscribeagain() {
+		System.out.println("--------------------- test_brkoffline_sub_subscribeagain ----------------------------");
+		//
+		//
+		int pub_qos_tmp = publisher_qos1;
+		int sub_qos_tmp = subscriber_qos1;
+		//-----------------------------
+		//
+        // ------------------
+        //
+        try {
+        	// you need to set publisher setAutomaticReconnect
+            // ------------------
+            //
+        	pub_connOpts.setAutomaticReconnect(true);
+            //
+            // -------------------------------------------------------------------------
+        	//
+            System.out.println("publisher Connecting to broker: "+broker);
+            pubClient.connect(pub_connOpts);
+            System.out.println("publisher Connected");
+            //
+		} catch (MqttSecurityException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		} catch (MqttException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+        //
+        try {
+        	//
+    		// on the basis that the the broker would not shutdown or crash during the process,
+    		// let broker remember the subscriber
+    		sub_connOpts.setCleanStart(false);
+    		// 500 seconds for broker to remember this subscriber
+    		sub_connOpts.setSessionExpiryInterval(500L);
+    		//
+            // ------------------
+            //
+    		sub_connOpts.setAutomaticReconnect(true);
+            //
+            // -------------------------------------------------------------------------
+    		//
+            System.out.println("subscriber Connecting to broker: "+broker);
+            subClient.connect(sub_connOpts);
+            System.out.println("subscriber Connected");
+            //
+		} catch (MqttSecurityException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		} catch (MqttException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+        //
+		//
+		// sleep main function for providing subscriber with enough time to subscribe the broker
+		MyThreadSleep.sleep2s();
+		//
+		//---------------------------------------------------------------------
+		//----------------------- publisher side -----------------------------
+		//
+		//-------------- publisher thread -------------
+		// 用 ExecutorService mythread_executor1 是为了 最后能够 停止这个thread, 
+		// 因为我发现 thread.stop 和 thread.interrupt 方法已经deprecated了
+		// 	网上推荐的方法使用ExecutorService 来最后停止 
+		Runnable serverRun_tmp = new MyServerRun(pub_qos_tmp);
+		Thread thread_pub1 = new Thread(serverRun_tmp, "publisher1");
+		//
+		myPubThread_executor1.submit(thread_pub1);
+		//---------------------------------------------------------------------
+		//----------------------- subscriber side -----------------------------
+		//
+		//-------------- subscriber thread -------------
+		// 虽然不需要专门搞个 线程 或者 线程池 给subscriber
+		// 只是因为我打算模拟 subscriber 是在另外一个计算机上运行的
+		// 所以 用一个线程模拟 一个计算机, 然后在这个计算机上 运行subscriber
+		Runnable subRun_tmp = new MySubRun(pub_qos_tmp);
+		Thread thread_sub1 = new Thread(subRun_tmp, "subscriber1");
+		//
+		mySubThread_executor1.submit(thread_sub1);
+		//---------------------------
+		//
+		// sleep main function for getting the some notifications
+		// if you set more sleep time, subscriber might receive more notifications
+		MyThreadSleep.sleep6s();
+		//
+		//lst_content_recv.add("kkk");
+		//---------------------------------------------------------------------
+		//----------------------- main test side ------------------------------
+		//
+		Scanner in = new Scanner(System.in);
+		String str_choice_tmp = null;
+		//
+		//
+		//----------------------- simulate subscriber crash ------------------------------
+		LOGGER.info("simulating subscriber crash");
+		mySubThread_executor1.shutdownNow();
+		try {
+			System.out.println("###############################################subscriber disconnected");
+			subClient.disconnect();
+			subClient.close();
+			System.out.println("###############################################subscriber closed");
+		} catch (MqttException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		//----------------------- simulate subscriber open ------------------------------
+		LOGGER.info("simulating subscriber crashed");
+		//
+		MyThreadSleep.sleep10s();
+		//
+		//----------------------- simulate broker crash ------------------------------
+		LOGGER.info("please close your broker and press enter here!!!!!!!!!!!!!!!!!!!!!!");
+		str_choice_tmp = in.nextLine();
+		//----------------------- simulate broker open ------------------------------
+		LOGGER.info("please wait for some seconds and open the the broker!!!!!!!!!!!!!!!!!!!!!!");
+		//
+		//----------------------- simulate subscriber again ------------------------------
+		LOGGER.info("simulating subscriber subscribe again");
+		try {
+			subClient = new MqttClient(broker, subscriber_clientId, sub_persistence);
+			//
+	        sub_connOpts = new MqttConnectionOptions();
+	        sub_connOpts.setUserName(myuserName);
+	        sub_connOpts.setPassword(mypwd.getBytes());
+	        //
+	        //
+    		// on the basis that the the broker would not shutdown or crash during the process,
+    		// let broker remember the subscriber
+    		sub_connOpts.setCleanStart(false);
+    		// 500 seconds for broker to remember this subscriber
+    		sub_connOpts.setSessionExpiryInterval(500L);
+    		//
+            // ------------------
+            //
+    		sub_connOpts.setAutomaticReconnect(true);
+            //
+            // -------------------------------------------------------------------------
+    		subClient.setCallback(new MqttCallback() {
+
+				@Override
+				public void disconnected(MqttDisconnectResponse disconnectResponse) {
+					// TODO Auto-generated method stub
+					//System.out.println("mqtt disconnected");
+					//
+					LOGGER.info("mqtt disconnected");
+				}
+
+				@Override
+				public void mqttErrorOccurred(MqttException exception) {
+					// TODO Auto-generated method stub
+					//System.out.println("mqtt error occurred");
+					//
+					LOGGER.info("mqtt error occurred");
+				}
+
+				@Override
+				public void deliveryComplete(IMqttToken token) {
+					// TODO Auto-generated method stub
+					//System.out.println("mqtt delivery complete");
+					//
+					LOGGER.info("mqtt delivery complete");
+				}
+
+				@Override
+				public void connectComplete(boolean reconnect, String serverURI) {
+					// TODO Auto-generated method stub
+					//System.out.println("mqtt connect complete");
+					//
+					LOGGER.info("mqtt connect complete");
+				}
+
+				@Override
+				public void authPacketArrived(int reasonCode, MqttProperties properties) {
+					// TODO Auto-generated method stub
+					//System.out.println("mqtt auth Packet Arrived");
+					//
+					LOGGER.info("mqtt auth Packet Arrived");
+				}
+
+				@Override
+				public void messageArrived(String topic, MqttMessage message) throws Exception {
+					// TODO Auto-generated method stub
+					System.out.println("message Arrived:\t" + new String(message.getPayload()));
+					//
+					sub_message = message;
+					if(message.getPayload() !=null && message.getPayload().equals("")==false) {
+						lst_content_recv.add(new String(message.getPayload()));
+						//LOGGER.info("message Arrived:\t"+ new String(message.getPayload()));
+					}
+				}
+
+
+			});
+    		//
+    		//
+            System.out.println("subscriber Connecting to broker: "+broker);
+            subClient.connect(sub_connOpts);
+            System.out.println("subscriber Connected");
+            //
+	        //---------------- thread -------------------
+			Runnable subRun_tmp2 = new MySubRun(sub_qos_tmp);
+			Thread thread_sub1_tmp2 = new Thread(subRun_tmp2, "sublisher1");
+			//
+			myPubThread_executor1.submit(thread_sub1_tmp2);
+		} catch (MqttException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		//
+		//
+		MyThreadSleep.sleep30s();
+		//
+		//lst_content_recv.add("kkkkk");
+		assertEquals(lst_content_send,lst_content_recv,"test_canceled_client1");
+		System.out.println("#######################testend");
+		//
+	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	/**
+	 * 
+*  publisher(online)	-------------> 	mosquitto(online)  -------------->	subscriber(online)
+	 *  publisher(online) 	----123------> 	mosquitto(online)  -------------->	subscriber(online)
+	 *  publisher(online) 	-------------> 	mosquitto(online)  -------------->	subscriber(online)
+	 *                     						123
+	 *  publisher(online) 	-------------> 	mosquitto(online)  ------123----->	subscriber(online)
+	 *  publisher(online) 	-------------> 	mosquitto(online)  ------123----->	subscriber(online)
+	 *  																			1 2 3
+	 *  
+	 *  +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+	 *  +++++++++++++++++++++++++			turn off subscriber		+++++++++++++++++++++++++++++++
+	 *  ++++++	要设置 subscriber 的 setCleantStart(false) 和 interval, 	使得 subscriber 重启 后   broker     仍然记得 这个subscriber 						+++++++
+	 *  +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+	 *  publisher(online) 	-------------> 	mosquitto(online)  -------------->	subscriber(offline)
+	 *  publisher(online) 	----45678----> 	mosquitto(online)  -------------->	subscriber(offline)
+	 *  publisher(online) 	-------------> 	mosquitto(online)  -------------->	subscriber(offline)
 	 *  									   4 5 6 7 8
-	 *  publisher(online)	-------------> 	mosquitto(online)  -------------->	subscriber(online)
-	 *  							     										4 5 6 7 8	
+	 *  
+	 *  +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+	 *  ++++++++++++++++++++++++++ 			turn off broker			+++++++++++++++++++++++++++++++
+	 *  ++++++	因为 (setBufferEnabled(true)) 							使得 broker离线 时    publisher 保存	publisher 	发送不到	broker 		的 9 10 11 12	+++++++
+	 *  ++++++	 此外 还需要 在mosquitto.config 中 设置 persistence true		使得 broker离线 时    broker  	保存  	broker 		发送不到	subscriber	的 4 5 6 7 8 	+++++++
+	 *  +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+	 *  publisher(online)	-------------> 	mosquitto(offline) -------------->	subscriber(offline)
+	 *  									   4 5 6 7 8
+	 *  publisher(online)	-9-10-11-12--> 	mosquitto(offline) -------------->	subscriber(offline)
+	 *   		                               4 5 6 7 8
+	 *  publisher(online)	-------------> 	mosquitto(offline) -------------->	subscriber(offline)
+	 *   9 10 11 12                            4 5 6 7 8
+	 *   
+	 *  +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+	 *  ++++++++++++++++++++++++++ 			turn on broker			+++++++++++++++++++++++++++++++
+	 *  +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+	 *  publisher(online)	-------------> 	mosquitto(online) -------------->	subscriber(offline)
+	 *   9 10 11 12                            4 5 6 7 8
+	 *  publisher(online)	-9-10-11-12--> 	mosquitto(online) -------------->	subscriber(offline)
+	 *   		                               4 5 6 7 8
+	 *  publisher(online)	-------------> 	mosquitto(online) -------------->	subscriber(offline)
+	 *  									 45678 9 10 11 12
+	 *  publisher(online)	--13-14-15---> 	mosquitto(online) -------------->	subscriber(offline)
+	 *  									 45678 9 10 11 12
+	 *  publisher(online)	-------------> 	mosquitto(online) -------------->	subscriber(offline)
+	 *  							     45678 9 10 11 12 13 14 15
+	 *  
+	 *  +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+	 *  ++++++++++++++++++++++++++ 			turn on subscriber			+++++++++++++++++++++++++++
+	 *  +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+	 *  publisher(online)	-------------> 	mosquitto(online) -456789101112131415-->subscriber(online)
+	 *  publisher(online)	-------------> 	mosquitto(online) --------------------->subscriber(online)
+	 *  							     									456789 10 11 12 13 14 15 		
+	 * 
 	 * 
 	 * </p>
 	 * 
@@ -605,5 +1003,32 @@ class TestMain_Auth_MsqtOffl_MsqtOnl {
 		
 	}
 	
+	
+	
+	
+	class MySubRun implements Runnable{
+		private int qos_tmp = -1;
+		public MySubRun(int qos){
+			this.qos_tmp = qos;
+		}
+		@Override
+		public void run() {
+			try {
+				// --------------------------------------------------
+				System.out.println("subsribing message topic: " + topic);
+				subClient.subscribe(topic, qos_tmp);
+				//
+			} catch (MqttException me) {
+				System.out.println("reason " + me.getReasonCode());
+				System.out.println("msg " + me.getMessage());
+				System.out.println("loc " + me.getLocalizedMessage());
+				System.out.println("cause " + me.getCause());
+				System.out.println("excep " + me);
+				me.printStackTrace();
+			}
+			//
+		}
+		
+	}
 	
 }
