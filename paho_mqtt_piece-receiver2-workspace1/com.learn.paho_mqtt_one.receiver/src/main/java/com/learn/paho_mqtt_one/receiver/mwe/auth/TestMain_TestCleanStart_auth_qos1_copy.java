@@ -26,20 +26,14 @@ import org.slf4j.LoggerFactory;
  * &emsp;						It uses qos1.																		</br>
  * &emsp;						in this class, it just change qos0 to qos1											</br>
  * 																													</br>
- * &emsp; 					稍微注意一下, 个人不太建议 关闭一个 程序之前, 还要 unsubscribe											</br>
- * &emsp; 					假设 我们这个subscriber设置了 Qos1 或 Qos2 (总之不是qos0, 不然会重启收获不到 未收到的信息的)						</br>
- * &emsp; 						和 设置了 setCleanStart(false)															</br>
- * &emsp;&emsp;	 					然后 我用了 在 machineA 部署了 clientID_1 												</br>
- * &emsp;&emsp;&emsp;	 					此时, 我直接shutdown了 这个subscriber,   										</br>
- * &emsp;&emsp;&emsp;	 					在shutdown之后, publisher发送了 78910到broker, 因为shutdown 所以没有被subscriber 接收 </br>
- * &emsp;&emsp;&emsp;	 					当我  用同样的clientID_1   部署在 另外一个  machineB, 那么它仍然能获得 78910, 如果你使用了unsubscribe 那么 machineB 就无法获得 78910 了 	</br>
+ * 
  * </p>
  * 
  * 
  * @author laipl
  *
  */
-public class TestMain_TestCleanStart_auth_qos1 {
+public class TestMain_TestCleanStart_auth_qos1_copy {
 
 	public static void main(String[] args) {
 
@@ -51,14 +45,14 @@ public class TestMain_TestCleanStart_auth_qos1 {
         //String broker       = "tcp://iot.eclipse.org:1883";
         String broker       = "tcp://localhost:1883";
         //String clientId     = "JavaSample";
-        String clientId     = "JavaSample_revcevier";
+        String clientId     = "JavaSample_revcevier2";
         
         String myuserName	= "IamPublisherOne";
         String mypwd		= "123456";
         
         MemoryPersistence persistence = new MemoryPersistence();
 
-        final Logger LOGGER = LoggerFactory.getLogger(TestMain_TestCleanStart_auth_qos1.class);
+        final Logger LOGGER = LoggerFactory.getLogger(TestMain_TestCleanStart_auth_qos1_copy.class);
         //
         //
         try {

@@ -1,9 +1,11 @@
-package com.learn.paho_mqtt_one.receiver.mwe.auth;
+package com.learn.paho_mqtt_one.receiver.mwe;
 
-
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.Scanner;
 
-
+import org.eclipse.paho.mqttv5.client.IMqttDeliveryToken;
 import org.eclipse.paho.mqttv5.client.IMqttToken;
 import org.eclipse.paho.mqttv5.client.MqttCallback;
 import org.eclipse.paho.mqttv5.client.MqttClient;
@@ -20,65 +22,48 @@ import org.slf4j.LoggerFactory;
  * 
  * <p>
  * 							description:																			</br>	
- * &emsp;						It would use the authentication(user name and password).							</br>
- * &emsp;&emsp;						because some broker(like mosquitto, etc) needs authentication, 					</br>
- * &emsp;&emsp;						if your client is not in the same local machine where your broker is deployed.	</br>	
- * &emsp;						It uses qos1.																		</br>
- * &emsp;						in this class, it just change qos0 to qos1											</br>
+ * &emsp;						1. try set clean start 																</br>
+ * &emsp;						if when only subscriber setCleanStart(False) with interval, 						</br>
+ * &emsp;&emsp;						on the basis of not crashing the broker and not shutting down the broker,		</br>
+ * &emsp;&emsp;&emsp;					broker will 																</br>
+ * &emsp;&emsp;&emsp;					remember the subscriber when the *subscriber* is offline midway for while 	</br>
  * 																													</br>
- * &emsp; 					稍微注意一下, 个人不太建议 关闭一个 程序之前, 还要 unsubscribe											</br>
- * &emsp; 					假设 我们这个subscriber设置了 Qos1 或 Qos2 (总之不是qos0, 不然会重启收获不到 未收到的信息的)						</br>
- * &emsp; 						和 设置了 setCleanStart(false)															</br>
- * &emsp;&emsp;	 					然后 我用了 在 machineA 部署了 clientID_1 												</br>
- * &emsp;&emsp;&emsp;	 					此时, 我直接shutdown了 这个subscriber,   										</br>
- * &emsp;&emsp;&emsp;	 					在shutdown之后, publisher发送了 78910到broker, 因为shutdown 所以没有被subscriber 接收 </br>
- * &emsp;&emsp;&emsp;	 					当我  用同样的clientID_1   部署在 另外一个  machineB, 那么它仍然能获得 78910, 如果你使用了unsubscribe 那么 machineB 就无法获得 78910 了 	</br>
+ * &emsp;						2. try set clean start 																</br>
+ * &emsp;						if when mosquitto config set 'persistence' to be true								</br>
+ * &emsp;						and subscriber setCleanStart(False) with interval , 								</br>
+ * &emsp;&emsp;						though the broker is crash or the broker is offline,							</br>
+ * &emsp;&emsp;&emsp;					broker will 																</br>
+ * &emsp;&emsp;&emsp;					remember the subscriber when the *broker* is offline midway for while 		</br>
+ * &emsp;&emsp;&emsp;				notes: needs reconnect or auto reconnect in subscriber side						</br>
+ * &emsp;&emsp;&emsp;						 to get notification after broker restarts								</br>
+ * 																													</br>
  * </p>
- * 
  * 
  * @author laipl
  *
  */
-public class TestMain_TestCleanStart_auth_qos1 {
+public class TestMain_TestCleanStart {
 
 	public static void main(String[] args) {
 
-        //String topic        = "MQTT Examples";
-        String topic        = "sensors/temperature";
-        //String content      = "Message from MqttPublishSample";
-        String content      = "receiver";
-        int qos             = 1;
-        //String broker       = "tcp://iot.eclipse.org:1883";
-        String broker       = "tcp://localhost:1883";
-        //String clientId     = "JavaSample";
-        String clientId     = "JavaSample_revcevier";
-        
-        String myuserName	= "IamPublisherOne";
-        String mypwd		= "123456";
-        
+        //String topic        	= "MQTT Examples";
+        String topic        	= "sensors/temperature";
+        //String content      	= "Message from MqttPublishSample";
+        String content      	= "receiver";
+        int qos             	= 2;
+        //String brokerUri      = "tcp://iot.eclipse.org:1883";
+        String brokerUri       	= "tcp://localhost:1883";
+        //String clientId     	= "JavaSample";
+        String clientId     	= "JavaSample_revcevier";
         MemoryPersistence persistence = new MemoryPersistence();
 
-        final Logger LOGGER = LoggerFactory.getLogger(TestMain_TestCleanStart_auth_qos1.class);
-        //
-        //
+        //final Logger LOGGER = LoggerFactory.getLogger(MqttClient.class);
+        final Logger LOGGER = LoggerFactory.getLogger(TestMain_TestCleanStart.class);
         try {
-        	// create mqtt client
-            MqttClient sampleClient = new MqttClient(broker, clientId, new MemoryPersistence());
+            MqttClient sampleClient = new MqttClient(brokerUri, clientId, persistence);
             //MqttClient sampleClient = new MqttClient(broker, clientId);
-        	//
-        	// -----------------------set connection options-------------------------
-        	// 
+            //
             MqttConnectionOptions connOpts = new MqttConnectionOptions();
-            //
-            //
-            // ------------------
-            // authentication
-            //
-            connOpts.setUserName(myuserName);
-            connOpts.setPassword(mypwd.getBytes());
-            //
-            // ------------------
-            // set persistence
             //
             // 如果 setCleanStart(false) 意味着: 
             // 你想要让 	订阅者		在	disconnect 之后  reconnect 
@@ -117,10 +102,7 @@ public class TestMain_TestCleanStart_auth_qos1 {
             // 此时如果你还想获得订阅信息, 你还需要重新subscribe
             connOpts.setSessionExpiryInterval(500L);
             //
-            //connOpts.setCleanStart(true);
             //
-            // -------------------------------------------------------------------------
-            // -----------------------set handler for asynchronous request--------------
             //
             sampleClient.setCallback(new MqttCallback() {
 
@@ -129,8 +111,8 @@ public class TestMain_TestCleanStart_auth_qos1 {
 					// TODO Auto-generated method stub
 					//System.out.println("mqtt disconnected");
 					//
-					//LOGGER.info("mqtt disconnected:"+disconnectResponse.getReturnCode()+"//"+disconnectResponse.getReasonString());
-					LOGGER.info("mqtt disconnected:"+disconnectResponse.toString());
+					LOGGER.info("mqtt disconnected");
+					
 					
 				}
 
@@ -177,25 +159,16 @@ public class TestMain_TestCleanStart_auth_qos1 {
 
 
 			});
-            // -------------------------------------------------------------------------
-            // ---------------- to connect and to subscribe ----------------------------
-            //
-            // connect
-            System.out.println("Connecting to broker: "+broker);
+            
+
+            System.out.println("Connecting to broker: "+brokerUri);
             sampleClient.connect(connOpts);
             System.out.println("Connected");
             System.out.println("subsribing message topic: " + topic);
-            //
-            //
-            // subscribe
+
             sampleClient.subscribe(topic,qos);
-            //
-            //
-            //
-            System.out.println("wow_hello");
-            //
-            //
-            //------------------------------------------------------
+            
+            System.out.println("enter to exit!!!!!!!!!!!!!!!!!!!!!!!!!!!");
             Scanner in =new Scanner(System.in) ;
             int int_choice = 0;
             while(int_choice!=-1) {
@@ -229,11 +202,12 @@ public class TestMain_TestCleanStart_auth_qos1 {
             		System.out.println("subscribed topic");
             	}
             }
-            //
-            //
-            //
-            //
-            //
+            
+            System.out.println("wow_hello");
+            
+            
+            
+            
             //
             sampleClient.disconnect();
             System.out.println("Disconnected");
