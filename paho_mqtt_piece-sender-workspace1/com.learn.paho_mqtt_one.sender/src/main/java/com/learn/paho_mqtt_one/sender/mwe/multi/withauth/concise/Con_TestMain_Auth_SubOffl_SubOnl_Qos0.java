@@ -121,13 +121,15 @@ public class Con_TestMain_Auth_SubOffl_SubOnl_Qos0 {
             		me.printStackTrace();
             	}
                 //
-                Thread.sleep(10000);
+                Thread.sleep(3000);
             }
             
             System.out.println("Message published");
             //
             sampleClient.disconnect();
             System.out.println("Disconnected");
+            sampleClient.close();
+            System.out.println("closed");
             System.exit(0);
         } catch(MqttException me) {
             System.out.println("reason "+me.getReasonCode());

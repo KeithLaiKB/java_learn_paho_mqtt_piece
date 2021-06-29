@@ -143,6 +143,13 @@ import org.eclipse.paho.mqttv5.common.MqttMessage;
  * 
  * +++++++++++++++++++++++++++++++++
  *
+ * 由于要设置 DisconnectedBufferOptions
+ * MqttClient 这个类比较简单, 无法直接设置
+ * 所以改成用 MqttAsyncClient
+ * 因此要把
+ *      sampleClient.connect(connOpts);										//如果是MqttClient 贼需要这个
+ *      改成这个
+ *      sampleClient.connect(connOpts, null, null).waitForCompletion(-1); 	//如果是MqttAsyncClient 贼需要这个               
  * 
  *
  */
@@ -230,13 +237,15 @@ public class TestMain_Auth_MsqtOffl_PubOffl_MsqtOnl_PubOnl {
             		me.printStackTrace();
             	}
                 //
-                Thread.sleep(10000);
+                Thread.sleep(3000);
             }
             
             System.out.println("Message published");
             //
             sampleClient.disconnect();
             System.out.println("Disconnected");
+            sampleClient.close();
+            System.out.println("closed");
             System.exit(0);
         } catch(MqttException me) {
             System.out.println("reason "+me.getReasonCode());

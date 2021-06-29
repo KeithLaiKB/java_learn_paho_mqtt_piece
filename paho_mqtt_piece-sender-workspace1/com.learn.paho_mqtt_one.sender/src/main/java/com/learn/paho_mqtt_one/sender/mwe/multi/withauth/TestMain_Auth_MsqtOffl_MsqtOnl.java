@@ -128,6 +128,17 @@ import org.eclipse.paho.mqttv5.common.MqttMessage;
  * 在这例子的设置当中, 就算是重启后, 即使publisher没有重启
  * 当 subscriber重启后 都能够获得broker中存储的数据
  *
+ * +++++++++++++++++++++++++++++++++
+ *
+ * 由于要设置 DisconnectedBufferOptions
+ * MqttClient 这个类比较简单, 无法直接设置
+ * 所以 把 MqttClient 改成用 MqttAsyncClient
+ * 因此要把
+ *      sampleClient.connect(connOpts);										//如果是MqttClient 贼需要这个
+ *      改成这个
+ *      sampleClient.connect(connOpts, null, null).waitForCompletion(-1); 	//如果是MqttAsyncClient 贼需要这个               
+ * 
+ *
  */
 public class TestMain_Auth_MsqtOffl_MsqtOnl {
 
@@ -220,6 +231,8 @@ public class TestMain_Auth_MsqtOffl_MsqtOnl {
             //
             sampleClient.disconnect();
             System.out.println("Disconnected");
+            sampleClient.close();
+            System.out.println("closed");
             System.exit(0);
         } catch(MqttException me) {
             System.out.println("reason "+me.getReasonCode());

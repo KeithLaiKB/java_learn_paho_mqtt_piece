@@ -102,7 +102,7 @@ import org.eclipse.paho.mqttv5.common.MqttMessage;
  * 
  * <p>
  * 							description:																			</br>	
- * &emsp;						try set clean start 																</br>
+ * &emsp;						set clean start(false) 																</br>
  * &emsp;						if when mosquitto config set 'persistence' to be true								</br>
  * &emsp;						and publisher setCleanStart(False) with interval, 									</br>
  * &emsp;						and setBufferEnabled(True), 														</br>
@@ -114,6 +114,9 @@ import org.eclipse.paho.mqttv5.common.MqttMessage;
  * &emsp;&emsp;&emsp;					and 																		</br>
  * &emsp;&emsp;&emsp;					publisher will 																</br>
  * &emsp;&emsp;&emsp;					remember the data sent but is not received by broker because broker is offline	</br>
+ * 
+ * &emsp;						and  change "MqttClient" to "MqttAsyncClient",	and change "sampleClient.connect(connOpts)"  to	"sampleClient.connect(connOpts, null, null).waitForCompletion(-1)"		</br>
+ * &emsp;&emsp;						because you could not set DisconnectedBufferOptions in "MqttClient",			</br>
  * 																													</br>
  * 																													
  * </p>
@@ -203,13 +206,15 @@ public class Con_TestMain_Auth_MsqtOffl_PubOffl_MsqtOnl_PubOnl {
             		me.printStackTrace();
             	}
                 //
-                Thread.sleep(10000);
+                Thread.sleep(3000);
             }
             
             System.out.println("Message published");
             //
             sampleClient.disconnect();
             System.out.println("Disconnected");
+            sampleClient.close();
+            System.out.println("closed");
             System.exit(0);
         } catch(MqttException me) {
             System.out.println("reason "+me.getReasonCode());

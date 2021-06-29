@@ -216,9 +216,12 @@ public class TestMain_qos1 {
             
             
             
-            //sampleClient.disconnect();
-            //System.out.println("Disconnected");
-            //System.exit(0);
+            //
+            sampleClient.disconnect();
+            System.out.println("Disconnected");
+            sampleClient.close();
+            System.out.println("closed");
+            System.exit(0);
         } catch(MqttException me) {
             System.out.println("reason "+me.getReasonCode());
             System.out.println("msg "+me.getMessage());
