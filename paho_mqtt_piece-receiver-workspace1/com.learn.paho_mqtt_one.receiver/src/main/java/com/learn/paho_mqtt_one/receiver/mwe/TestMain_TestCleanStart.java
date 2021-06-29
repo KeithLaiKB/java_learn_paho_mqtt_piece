@@ -46,21 +46,21 @@ public class TestMain_TestCleanStart {
 
 	public static void main(String[] args) {
 
-        //String topic        = "MQTT Examples";
-        String topic        = "sensors/temperature";
-        //String content      = "Message from MqttPublishSample";
-        String content      = "receiver";
-        int qos             = 2;
-        //String broker       = "tcp://iot.eclipse.org:1883";
-        String broker       = "tcp://localhost:1883";
-        //String clientId     = "JavaSample";
-        String clientId     = "JavaSample_revcevier";
+        //String topic        	= "MQTT Examples";
+        String topic        	= "sensors/temperature";
+        //String content      	= "Message from MqttPublishSample";
+        String content      	= "receiver";
+        int qos             	= 2;
+        //String brokerUri      = "tcp://iot.eclipse.org:1883";
+        String brokerUri       	= "tcp://localhost:1883";
+        //String clientId     	= "JavaSample";
+        String clientId     	= "JavaSample_revcevier";
         MemoryPersistence persistence = new MemoryPersistence();
 
         //final Logger LOGGER = LoggerFactory.getLogger(MqttClient.class);
         final Logger LOGGER = LoggerFactory.getLogger(TestMain_TestCleanStart.class);
         try {
-            MqttClient sampleClient = new MqttClient(broker, clientId, persistence);
+            MqttClient sampleClient = new MqttClient(brokerUri, clientId, persistence);
             //MqttClient sampleClient = new MqttClient(broker, clientId);
             //
             MqttConnectionOptions connOpts = new MqttConnectionOptions();
@@ -161,7 +161,7 @@ public class TestMain_TestCleanStart {
 			});
             
 
-            System.out.println("Connecting to broker: "+broker);
+            System.out.println("Connecting to broker: "+brokerUri);
             sampleClient.connect(connOpts);
             System.out.println("Connected");
             System.out.println("subsribing message topic: " + topic);

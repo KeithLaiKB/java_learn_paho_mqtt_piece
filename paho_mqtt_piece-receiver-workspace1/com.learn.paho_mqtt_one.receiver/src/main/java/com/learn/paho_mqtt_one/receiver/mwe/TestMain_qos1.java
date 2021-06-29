@@ -22,15 +22,15 @@ public class TestMain_qos1 {
 
 	public static void main(String[] args) {
 
-        //String topic        = "MQTT Examples";
-        String topic        = "sensors/temperature";
-        //String content      = "Message from MqttPublishSample";
-        String content      = "receiver";
-        int qos             = 1;
-        //String broker       = "tcp://iot.eclipse.org:1883";
-        String broker       = "tcp://localhost:1883";
-        //String clientId     = "JavaSample";
-        String clientId     = "JavaSample_revcevier";
+        //String topic        	= "MQTT Examples";
+        String topic        	= "sensors/temperature";
+        //String content      	= "Message from MqttPublishSample";
+        String content      	= "receiver";
+        int qos             	= 1;
+        //String brokerUri      = "tcp://iot.eclipse.org:1883";
+        String brokerUri       	= "tcp://localhost:1883";
+        //String clientId     	= "JavaSample";
+        String clientId     	= "JavaSample_revcevier";
         MemoryPersistence persistence = new MemoryPersistence();
         //
         final Logger LOGGER = LoggerFactory.getLogger(TestMain_qos1.class);
@@ -104,7 +104,7 @@ public class TestMain_qos1 {
 
         //
         try {
-            MqttClient sampleClient = new MqttClient(broker, clientId, persistence);
+            MqttClient sampleClient = new MqttClient(brokerUri, clientId, persistence);
             MqttConnectionOptions connOpts = new MqttConnectionOptions();
             // don't save the information during disconnected from subscribed status
             connOpts.setCleanStart(true);
@@ -166,7 +166,7 @@ public class TestMain_qos1 {
 			});
             
             
-            System.out.println("Connecting to broker: "+broker);
+            System.out.println("Connecting to broker: "+brokerUri);
             sampleClient.connect(connOpts);
             System.out.println("Connected");
             System.out.println("subsribing message topic: " + topic);

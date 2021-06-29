@@ -28,7 +28,7 @@ public class TestMain_qos1 {
         String content      = "hi_myfriend";
         int qos             = 1;
         //String broker       = "tcp://iot.eclipse.org:1883";
-        String broker       = "tcp://localhost:1883";
+        String brokerUri       = "tcp://localhost:1883";
         //String broker       = "ssl://localhost:8883";
         String clientId     = "JavaSample";
         MemoryPersistence persistence = new MemoryPersistence();
@@ -41,10 +41,10 @@ public class TestMain_qos1 {
         //53144		->	1883	TCP			ACK
         //
         try {
-            MqttClient sampleClient = new MqttClient(broker, clientId, persistence);
+            MqttClient sampleClient = new MqttClient(brokerUri, clientId, persistence);
             MqttConnectionOptions connOpts = new MqttConnectionOptions();
             connOpts.setCleanStart(true);
-            System.out.println("Connecting to broker: "+broker);
+            System.out.println("Connecting to broker: "+brokerUri);
             sampleClient.connect(connOpts);
             System.out.println("Connected");
             System.out.println("Publishing message: "+content);

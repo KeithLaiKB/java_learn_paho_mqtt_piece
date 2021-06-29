@@ -21,13 +21,13 @@ public class TestContentUpdate_qos0 {
 
 	public static void main(String[] args) {
 
-        //String topic        = "MQTT Examples";
+        //String topic      = "MQTT Examples";
         String topic        = "sensors/temperature";
-        //String content      = "Message from MqttPublishSample";
+        //String content    = "Message from MqttPublishSample";
         String content      = "hello";
         int qos             = 2;
-        //String broker       = "tcp://iot.eclipse.org:1883";
-        String broker       = "tcp://localhost:1883";
+        //String broker    	= "tcp://iot.eclipse.org:1883";
+        String brokerUri    = "tcp://localhost:1883";
         String clientId     = "JavaSample";
         MemoryPersistence persistence = new MemoryPersistence();
         
@@ -76,7 +76,7 @@ public class TestContentUpdate_qos0 {
         //
         //
         try {
-        	MqttClient sampleClient = new MqttClient(broker, clientId, persistence);
+        	MqttClient sampleClient = new MqttClient(brokerUri, clientId, persistence);
         	//MqttClient sampleClient = new MqttClient(broker, clientId);
         	//
             MqttConnectionOptions connOpts = new MqttConnectionOptions();
@@ -85,7 +85,7 @@ public class TestContentUpdate_qos0 {
             //connOpts.setCleanStart(true);
 
             
-            System.out.println("Connecting to broker: "+broker);
+            System.out.println("Connecting to broker: "+brokerUri);
             sampleClient.connect(connOpts);
             System.out.println("Connected");
             // System.out.println("Publishing message: "+content);

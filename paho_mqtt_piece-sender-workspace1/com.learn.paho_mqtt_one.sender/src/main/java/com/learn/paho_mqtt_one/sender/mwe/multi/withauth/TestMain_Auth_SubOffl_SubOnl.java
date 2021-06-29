@@ -69,13 +69,13 @@ public class TestMain_Auth_SubOffl_SubOnl {
 
 	public static void main(String[] args) {
 
-        //String topic        = "MQTT Examples";
+        //String topic      = "MQTT Examples";
         String topic        = "sensors/temperature";
-        //String content      = "Message from MqttPublishSample";
+        //String content    = "Message from MqttPublishSample";
         String content      = "hello";
         int qos             = 1;
-        //String broker       = "tcp://iot.eclipse.org:1883";
-        String broker       = "tcp://localhost:1883";
+        //String broker     = "tcp://iot.eclipse.org:1883";
+        String brokerUri    = "tcp://localhost:1883";
         String clientId     = "JavaSample";
         
         String myuserName	= "IamPublisherOne";
@@ -84,8 +84,8 @@ public class TestMain_Auth_SubOffl_SubOnl {
 
 
         try {
-        	//MqttAsyncClient sampleClient = new MqttAsyncClient(broker, clientId, new MqttDefaultFilePersistence());
-        	MqttClient sampleClient = new MqttClient(broker, clientId, new MemoryPersistence());
+        	//MqttAsyncClient sampleClient = new MqttAsyncClient(brokerUri, clientId, new MqttDefaultFilePersistence());
+        	MqttClient sampleClient = new MqttClient(brokerUri, clientId, new MemoryPersistence());
         	//
         	// -----------------------set connection options-------------------------
         	// 
@@ -108,7 +108,7 @@ public class TestMain_Auth_SubOffl_SubOnl {
             // -------------------------------------------------------------------------
             //
             // connect to broker
-            System.out.println("Connecting to broker: "+broker);
+            System.out.println("Connecting to broker: "+brokerUri);
             sampleClient.connect(connOpts);									//如果是MqttClient 贼需要这个
             //sampleClient.connect(connOpts, null, null).waitForCompletion(-1); 	//如果是MqttAsyncClient 贼需要这个
             System.out.println("Connected");

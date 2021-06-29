@@ -112,7 +112,7 @@ public class Con_TestMain_Auth_MsqtOffl_MsqtOnl {
         String content      = "hello";
         int qos             = 1;
 
-        String broker       = "tcp://localhost:1883";
+        String brokerUri    = "tcp://localhost:1883";
         String clientId     = "JavaSample";
         
         String myuserName	= "IamPublisherOne";
@@ -121,7 +121,7 @@ public class Con_TestMain_Auth_MsqtOffl_MsqtOnl {
 
 
         try {
-        	MqttAsyncClient sampleClient = new MqttAsyncClient(broker, clientId, new MemoryPersistence());
+        	MqttAsyncClient sampleClient = new MqttAsyncClient(brokerUri, clientId, new MemoryPersistence());
         	//
         	// -----------------------set connection options-------------------------
         	// 
@@ -158,7 +158,7 @@ public class Con_TestMain_Auth_MsqtOffl_MsqtOnl {
             //
             //
             // connect to broker
-            System.out.println("Connecting to broker: "+broker);
+            System.out.println("Connecting to broker: "+brokerUri);
             //sampleClient.connect(connOpts);									//如果是MqttClient 贼需要这个
             sampleClient.connect(connOpts, null, null).waitForCompletion(-1); 	//如果是MqttAsyncClient 贼需要这个
             System.out.println("Connected");
