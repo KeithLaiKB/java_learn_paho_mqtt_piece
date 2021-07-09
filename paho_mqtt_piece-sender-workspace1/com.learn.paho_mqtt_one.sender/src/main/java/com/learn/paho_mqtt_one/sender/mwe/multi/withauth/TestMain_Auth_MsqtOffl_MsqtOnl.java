@@ -98,7 +98,7 @@ import org.eclipse.paho.mqttv5.common.MqttMessage;
  * 因为 broker需要保存 		
  * 
  * 因为broker需要记得 subscriber
- * 在这里 还需要设置 subscriber 
+ * 在这里 还需要设置 subscriber !!!!!! 在这个例子中无论你是否中途关掉subscriber 都要这么设置
  * 	connOpts.setCleanStart(false);
  * 	connOpts.setSessionExpiryInterval(500L);		//500是个时间 你可以随便设置
  * 

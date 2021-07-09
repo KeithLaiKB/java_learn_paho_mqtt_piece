@@ -46,16 +46,26 @@ public class TestMain_qos2 {
         //
         try {
             MqttClient sampleClient = new MqttClient(brokerUri, clientId, persistence);
+            //
+            // server configuration
             MqttConnectionOptions connOpts = new MqttConnectionOptions();
             connOpts.setCleanStart(true);
+            //
+            // connect
             System.out.println("Connecting to broker: "+brokerUri);
             sampleClient.connect(connOpts);
             System.out.println("Connected");
+            //
+            // create message
             System.out.println("Publishing message: "+content);
             MqttMessage message = new MqttMessage(content.getBytes());
             message.setQos(qos);
+            // publish message
             sampleClient.publish(topic, message);
             System.out.println("Message published");
+            //
+            //
+            //
             //
             //sampleClient.disconnect();
             //System.out.println("Disconnected");

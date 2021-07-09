@@ -188,7 +188,7 @@ public class TestMain_TestCleanStart_auth_qos1 {
             //
             //
             // subscribe
-            sampleClient.subscribe(topic,qos);
+            sampleClient.subscribe(topic,1);
             //
             //
             //
