@@ -6,7 +6,7 @@ import org.eclipse.paho.mqttv5.client.persist.MemoryPersistence;
 import org.eclipse.paho.mqttv5.common.MqttException;
 import org.eclipse.paho.mqttv5.common.MqttMessage;
 
-public class TestMain3 {
+public class TestMain_modified {
 	/**
 	 * 
 	 * 
@@ -52,7 +52,7 @@ public class TestMain3 {
             
             MqttMessage message_tmp;
             String str_content_tmp;
-            for(int i=0; i<=1000; i++) {
+            for(int i=0; i<=1000-1; i++) {
             	//str_content_tmp = content +":"+(i+1);
             	str_content_tmp = content +":"+(i+1);
             	message_tmp = new MqttMessage(str_content_tmp.getBytes());
