@@ -60,7 +60,7 @@ public class TestMain_modified {
             	//
             	System.out.println("Publishing message: "+str_content_tmp);
                 sampleClient.publish(topic, message_tmp);
-                Thread.sleep(10000);
+                Thread.sleep(5000);
             }
             
             System.out.println("Message published");
