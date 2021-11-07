@@ -13,29 +13,29 @@ import org.eclipse.paho.mqttv5.common.MqttMessage;
  * 
  * @author laipl
  *
- *	ÎÒÏëÒª×öµ½
- *	step1(Êı¾İ):	publisher 	·¢ËÍ 123
- *	step2(Êı¾İ):	subscriber 	½ÓÊÜ123
+ *	æˆ‘æƒ³è¦åšåˆ°
+ *	step1(æ•°æ®):	publisher 	å‘é€ 123
+ *	step2(æ•°æ®):	subscriber 	æ¥å—123
  *
- *	step3(²Ù×÷):	¹Ø±Õ subscriber 
+ *	step3(æ“ä½œ):	å…³é—­ subscriber 
  *
- *	step4(Êı¾İ):	publisher 	·¢ËÍ45678
+ *	step4(æ•°æ®):	publisher 	å‘é€45678
  *  
- *	step5(²Ù×÷):	¹Ø±Õ docker mosquitto		!!!!!!!!!!!!!!!!!!!!!
+ *	step5(æ“ä½œ):	å…³é—­ docker mosquitto		!!!!!!!!!!!!!!!!!!!!!
  *
- *	step6(Êı¾İ):	publisher 	¼ÌĞø·¢ËÍ 9 10 11 12
- *	step7(²Ù×÷):	¹Ø±Õ publisher				!!!!!!!!!!!!!!!!!!!!!
+ *	step6(æ•°æ®):	publisher 	ç»§ç»­å‘é€ 9 10 11 12
+ *	step7(æ“ä½œ):	å…³é—­ publisher				!!!!!!!!!!!!!!!!!!!!!
  *
- *	step7(²Ù×÷):	È»ºó Æô¶¯ docker mosquitto
+ *	step7(æ“ä½œ):	ç„¶å å¯åŠ¨ docker mosquitto
  *
- *	step8(Êı¾İ):	È»ºó Æô¶¯ publisher ·¢ËÍ 12345 (ÒòÎªÎÒÉè¼ÆÖØĞÂÆô¶¯ÊÇ´Ó 1 2 3 4 5  6 7ÕâÑù·¢) 
+ *	step8(æ•°æ®):	ç„¶å å¯åŠ¨ publisher å‘é€ 12345 (å› ä¸ºæˆ‘è®¾è®¡é‡æ–°å¯åŠ¨æ˜¯ä» 1 2 3 4 5  6 7è¿™æ ·å‘) 
  *
- *	step9(²Ù×÷):	È»ºó Æô¶¯ subscriber
- *	step10(Êı¾İ):	È»ºó subscriber ÄÜ½ÓÊÜ 
+ *	step9(æ“ä½œ):	ç„¶å å¯åŠ¨ subscriber
+ *	step10(æ•°æ®):	ç„¶å subscriber èƒ½æ¥å— 
  *								4 5 6 7 8
- *								      ºÍ
+ *								      å’Œ
  *								9 10 11 12
- *								      ºÍ
+ *								      å’Œ
  *								1 2 3 4 5
  *
  *  publisher(online)	-------------> 	mosquitto(online)  -------------->	subscriber(online)
@@ -56,7 +56,7 @@ import org.eclipse.paho.mqttv5.common.MqttMessage;
  *  
  *  +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
  *  ++++++++++++++++++++++++++ 			turn off broker			+++++++++++++++++++++++++++++++
- *  ++++++	ÒòÎª (setBufferEnabled(true)) Ê¹µÃ brokerÀëÏß Ê±    publisher ÄÜ±£´æ·¢ËÍ²»³öÈ¥µÄ 9 10 11 12	+++++++
+ *  ++++++	å› ä¸º (setBufferEnabled(true)) ä½¿å¾— brokerç¦»çº¿ æ—¶    publisher èƒ½ä¿å­˜å‘é€ä¸å‡ºå»çš„ 9 10 11 12	+++++++
  *  +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
  *  publisher(online)	-------------> 	mosquitto(offline) -------------->	subscriber(offline)
  *  									   4 5 6 7 8
@@ -79,7 +79,7 @@ import org.eclipse.paho.mqttv5.common.MqttMessage;
  *   
  *  +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
  *  ++++++++++++++++++++++++++ 			turn on publisher +++++++++++++++++++++++++++++++++++++
- *  ++++++	ÒòÎª (setPersistBuffer(true)) Ê¹µÃÖØĞÂÆô¶¯publisher Ê±	Ëü ÈÔ ±£Áô Ö®Ç°·¢ËÍ²»³öÈ¥µÄ 9 10 11 12	+++++++
+ *  ++++++	å› ä¸º (setPersistBuffer(true)) ä½¿å¾—é‡æ–°å¯åŠ¨publisher æ—¶	å®ƒ ä» ä¿ç•™ ä¹‹å‰å‘é€ä¸å‡ºå»çš„ 9 10 11 12	+++++++
  *  +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
  *  publisher(online)	-------------> 	mosquitto(online) -------------->	subscriber(offline)
  *   9 10 11 12                            4 5 6 7 8
@@ -170,19 +170,19 @@ public class Con_TestMain_Auth_MsqtOffl_PubOffl_MsqtOnl_PubOnl {
             // -----------------------set  disconnected buffer options------------------
             //
             DisconnectedBufferOptions disconnect_bfOpt_1=new DisconnectedBufferOptions();
-            // ³õÊ¼»¯disconnectedBufferOptions
-            disconnect_bfOpt_1.setBufferSize(100);				//ÀëÏßºó×î¶à»º´æ100Ìõ
-            disconnect_bfOpt_1.setPersistBuffer(true);  		// Ò»Ö±³ÖĞøÁô´æ
-            disconnect_bfOpt_1.setDeleteOldestMessages(false);	//É¾³ı¾ÉÏûÏ¢
-            disconnect_bfOpt_1.setBufferEnabled(true);			// ¶Ï¿ªÁ¬½Óºó½øĞĞ»º´æ
+            // åˆå§‹åŒ–disconnectedBufferOptions
+            disconnect_bfOpt_1.setBufferSize(100);				//ç¦»çº¿åæœ€å¤šç¼“å­˜100æ¡
+            disconnect_bfOpt_1.setPersistBuffer(true);  		//ä¸ä¸€ç›´æŒç»­ç•™å­˜
+            disconnect_bfOpt_1.setDeleteOldestMessages(false);	//ä¸åˆ é™¤æ—§æ¶ˆæ¯
+            disconnect_bfOpt_1.setBufferEnabled(true);			//æ–­å¼€è¿æ¥åè¿›è¡Œç¼“å­˜
             sampleClient.setBufferOpts(disconnect_bfOpt_1);
             // -------------------------------------------------------------------------
             //
             //
             // connect to broker
             System.out.println("Connecting to broker: "+brokerUri);
-            //sampleClient.connect(connOpts);									//Èç¹ûÊÇMqttClient ÔôĞèÒªÕâ¸ö
-            sampleClient.connect(connOpts, null, null).waitForCompletion(-1); 	//Èç¹ûÊÇMqttAsyncClient ÔôĞèÒªÕâ¸ö
+            //sampleClient.connect(connOpts);									//å¦‚æœæ˜¯MqttClient è´¼éœ€è¦è¿™ä¸ª
+            sampleClient.connect(connOpts, null, null).waitForCompletion(-1); 	//å¦‚æœæ˜¯MqttAsyncClient è´¼éœ€è¦è¿™ä¸ª
             System.out.println("Connected");
             //
             //

@@ -24,7 +24,7 @@ public class TestMain_modified {
         //String topic        = "MQTT Examples";
         String topic        = "sensors/temperature";
         //String content      = "Message from MqttPublishSample";
-        String content      = "ÄãºÃ";
+        String content      = "ä½ å¥½";
         int qos             = 2;
         //String broker       = "tcp://iot.eclipse.org:1883";
         String broker       = "tcp://localhost:1883";

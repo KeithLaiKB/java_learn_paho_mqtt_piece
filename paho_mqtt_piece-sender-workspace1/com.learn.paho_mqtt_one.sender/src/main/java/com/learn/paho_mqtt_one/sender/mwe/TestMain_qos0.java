@@ -24,7 +24,7 @@ public class TestMain_qos0 {
         //String topic        = "MQTT Examples";
         String topic        = "sensors/temperature";
         //String content      = "Message from MqttPublishSample";
-        //String content      = "ÄãºÃ";
+        //String content      = "ä½ å¥½";
         String content      = "hi_myfriend";
         int qos             = 0;
         //String broker       = "tcp://iot.eclipse.org:1883";

@@ -10,18 +10,18 @@ import org.eclipse.paho.mqttv5.common.MqttMessage;
  * 
  * @author laipl
  *
- *	ÎÒÏëÒª×öµ½
- *	step1(Êı¾İ):	publisher 	·¢ËÍ 123
- *	step2(Êı¾İ):	subscriber 	½ÓÊÜ123
+ *	æˆ‘æƒ³è¦åšåˆ°
+ *	step1(æ•°æ®):	publisher 	å‘é€ 123
+ *	step2(æ•°æ®):	subscriber 	æ¥å—123
  *
- *	step3(²Ù×÷):	¹Ø±Õ subscriber 
+ *	step3(æ“ä½œ):	å…³é—­ subscriber 
  *
- *	step4(Êı¾İ):	publisher 	·¢ËÍ45678
+ *	step4(æ•°æ®):	publisher 	å‘é€45678
  *  
- *	step8(²Ù×÷):	È»ºó Æô¶¯ subscriber
- *	step9(Êı¾İ):	È»ºó subscriber ÄÜ½ÓÊÜ 
+ *	step8(æ“ä½œ):	ç„¶å å¯åŠ¨ subscriber
+ *	step9(æ•°æ®):	ç„¶å subscriber èƒ½æ¥å— 
  *								1 2 3
- *								      ºÍ
+ *								      å’Œ
  *								4 5 6 7 8
  *
  *  publisher(online)	-------------> 	mosquitto(online)  -------------->	subscriber(online)
@@ -95,8 +95,8 @@ public class Con_TestMain_Auth_SubOffl_SubOnl_Qos0 {
             //
             // connect to broker
             System.out.println("Connecting to broker: "+brokerUri);
-            sampleClient.connect(connOpts);									//Èç¹ûÊÇMqttClient ÔôĞèÒªÕâ¸ö
-            //sampleClient.connect(connOpts, null, null).waitForCompletion(-1); 	//Èç¹ûÊÇMqttAsyncClient ÔôĞèÒªÕâ¸ö
+            sampleClient.connect(connOpts);											//å¦‚æœæ˜¯MqttClient è´¼éœ€è¦è¿™ä¸ª
+            //sampleClient.connect(connOpts, null, null).waitForCompletion(-1); 	//å¦‚æœæ˜¯MqttAsyncClient è´¼éœ€è¦è¿™ä¸ª
             System.out.println("Connected");
             //
             //

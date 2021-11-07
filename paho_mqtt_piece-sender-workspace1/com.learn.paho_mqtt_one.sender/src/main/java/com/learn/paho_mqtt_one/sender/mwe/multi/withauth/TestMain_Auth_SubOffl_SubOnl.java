@@ -13,18 +13,18 @@ import org.eclipse.paho.mqttv5.common.MqttMessage;
  * 
  * @author laipl
  *
- *	ÎÒÏëÒª×öµ½
- *	step1(Êı¾İ):	publisher 	·¢ËÍ 123
- *	step2(Êı¾İ):	subscriber 	½ÓÊÜ123
+ *	æˆ‘æƒ³è¦åšåˆ°
+ *	step1(æ•°æ®):	publisher 	å‘é€ 123
+ *	step2(æ•°æ®):	subscriber 	æ¥å—123
  *
- *	step3(²Ù×÷):	¹Ø±Õ subscriber 
+ *	step3(æ“ä½œ):	å…³é—­ subscriber 
  *
- *	step4(Êı¾İ):	publisher 	·¢ËÍ45678
+ *	step4(æ•°æ®):	publisher 	å‘é€45678
  *  
- *	step8(²Ù×÷):	È»ºó Æô¶¯ subscriber
- *	step9(Êı¾İ):	È»ºó subscriber ÄÜ½ÓÊÜ 
+ *	step8(æ“ä½œ):	ç„¶å å¯åŠ¨ subscriber
+ *	step9(æ•°æ®):	ç„¶å subscriber èƒ½æ¥å— 
  *								1 2 3
- *								      ºÍ
+ *								      å’Œ
  *								4 5 6 7 8
  *
  *  publisher(online)	-------------> 	mosquitto(online)  -------------->	subscriber(online)
@@ -37,7 +37,7 @@ import org.eclipse.paho.mqttv5.common.MqttMessage;
  *  
  *  +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
  *  +++++++++++++++++++++++++			turn off subscriber		+++++++++++++++++++++++++++++++
- *  ++++++	ÒªÉèÖÃ subscriber µÄ setCleantStart(false) ºÍ interval, 	Ê¹µÃ subscriber ÖØÆô ºó   broker     ÈÔÈ»¼ÇµÃ Õâ¸ösubscriber 						+++++++
+ *  ++++++	è¦è®¾ç½® subscriber çš„ setCleantStart(false) å’Œ interval, 	ä½¿å¾— subscriber é‡å¯ å   broker     ä»ç„¶è®°å¾— è¿™ä¸ªsubscriber 						+++++++
  *  +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
  *  publisher(online) 	-------------> 	mosquitto(online)  -------------->	subscriber(offline)
  *  publisher(online) 	----45678----> 	mosquitto(online)  -------------->	subscriber(offline)
@@ -53,17 +53,17 @@ import org.eclipse.paho.mqttv5.common.MqttMessage;
  *  							     										4 5 6 7 8							
  *
  * 
- * ÒòÎªbrokerĞèÒª¼ÇµÃ subscriber ÔÚÕâÀïÖ»ĞèÒªÉèÖÃ subscriber 
+ * å› ä¸ºbrokeréœ€è¦è®°å¾— subscriber åœ¨è¿™é‡Œåªéœ€è¦è®¾ç½® subscriber 
  * 	connOpts.setCleanStart(false);
- * 	connOpts.setSessionExpiryInterval(500L);		//500ÊÇ¸öÊ±¼ä Äã¿ÉÒÔËæ±ãÉèÖÃ
+ * 	connOpts.setSessionExpiryInterval(500L);		//500æ˜¯ä¸ªæ—¶é—´ ä½ å¯ä»¥éšä¾¿è®¾ç½®
  * 
- * ×¢Òâ Äã»¹ĞèÒªÉèÖÃsubscriber µÄqos²»ÄÜÎª0
- * ÒòÎª subscriberµÄ qos0 ÊÇÎŞ·¨reconnectµÄÊ±ºò »òÕß  ÖØĞÂÆô¶¯Õâ¸ösubscribe(´Óconnectµ½ subscribe)¼ÌĞø »ñµÃĞÅÏ¢
+ * æ³¨æ„ ä½ è¿˜éœ€è¦è®¾ç½®subscriber çš„qosä¸èƒ½ä¸º0
+ * å› ä¸º subscriberçš„ qos0 æ˜¯æ— æ³•reconnectçš„æ—¶å€™ æˆ–è€…  é‡æ–°å¯åŠ¨è¿™ä¸ªsubscribe(ä»connectåˆ° subscribe)ç»§ç»­ è·å¾—ä¿¡æ¯
  * 
- * subscriber¹Ø±Õºó	 ÖØÆô 		¾Í¿ÉÒÔÖ±½Ó»ñµÃ 45678
+ * subscriberå…³é—­å	 é‡å¯ 		å°±å¯ä»¥ç›´æ¥è·å¾— 45678
  *
  *
- * Èç¹ûÄã²»¹Ø±Õ broker, ÄÇÃ´¾Í ²»ĞèÒª ÔÚmosquitto.config ÖĞ ÉèÖÃ persistence true
+ * å¦‚æœä½ ä¸å…³é—­ broker, é‚£ä¹ˆå°± ä¸éœ€è¦ åœ¨mosquitto.config ä¸­ è®¾ç½® persistence true
  */
 public class TestMain_Auth_SubOffl_SubOnl {
 
@@ -109,8 +109,8 @@ public class TestMain_Auth_SubOffl_SubOnl {
             //
             // connect to broker
             System.out.println("Connecting to broker: "+brokerUri);
-            sampleClient.connect(connOpts);									//Èç¹ûÊÇMqttClient ÔôĞèÒªÕâ¸ö
-            //sampleClient.connect(connOpts, null, null).waitForCompletion(-1); 	//Èç¹ûÊÇMqttAsyncClient ÔôĞèÒªÕâ¸ö
+            sampleClient.connect(connOpts);											//å¦‚æœæ˜¯MqttClient è´¼éœ€è¦è¿™ä¸ª
+            //sampleClient.connect(connOpts, null, null).waitForCompletion(-1); 	//å¦‚æœæ˜¯MqttAsyncClient è´¼éœ€è¦è¿™ä¸ª
             System.out.println("Connected");
             //
             //
