@@ -43,8 +43,8 @@ public class TestMain_qos0 {
         // Subscriber	(port 40003)
         // ---------------------------
         //
-        // Qos×éºÏ
-        // P(Qos0)¡¢S(Qos0) == P(Qos0)¡¢S(Qos1) == P(Qos0)¡¢S(Qos2) 
+        // Qosè®¾ç½®
+        // P(Qos0)->S(Qos0) == P(Qos0)->S(Qos1) == P(Qos0)->S(Qos2) 
         //
         //
         //QoS

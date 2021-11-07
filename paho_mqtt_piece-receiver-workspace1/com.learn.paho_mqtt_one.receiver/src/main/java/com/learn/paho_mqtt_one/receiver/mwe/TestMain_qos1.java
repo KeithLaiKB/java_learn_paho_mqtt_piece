@@ -43,9 +43,9 @@ public class TestMain_qos1 {
         // Subscriber	(port 40003)
         // ---------------------------
         //
-        // Qos×éºÏ
-        // 1. P(Qos1)¡¢S(Qos1) == P(Qos1)¡¢S(Qos2)
-        // 2. P(Qos1)¡¢S(Qos0)
+        // Qosç»„åˆ
+        // 1. P(Qos1)ã€S(Qos1) == P(Qos1)ã€S(Qos2)
+        // 2. P(Qos1)ã€S(Qos0)
         //
         //
         //QoS
@@ -72,12 +72,12 @@ public class TestMain_qos1 {
         //
         //
         //++++++++++++++++++++++++++++++++++++++++
-        // ÆäÊµ P(Qos1)¡¢S(Qos1) == P(Qos1)¡¢S(Qos2)  ¿ÉÄÜÄã»áÒÉÎÊ  ¼ÈÈ»ÏàÍ¬ÎªÊ²Ã´ ÕâÁ½¿é¶«Î÷µÄ Êý¾Ý°üË³Ðò²»Ò»Ñù
-        // µ«×¢Òâ qos Ö÷Òª×÷ÓÃÔÚ  pubºÍ broker Ö®¼ä ,   subºÍ broker Ö®¼ä
-        // ËùÒÔ
-        // ÎÒÃÇ QoS1 -> broker-> QoS2 µÄ Êý¾Ý°ü Ë³Ðò  Ò²ÓÐ¿ÉÄÜ ºÍ  QoS1 -> broker-> QoS1 Ò»Ñù
-        // Í¬ÑùµÄ
-        // ÎÒÃÇ QoS1 -> broker-> QoS1 µÄ Êý¾Ý°ü Ë³Ðò  Ò²ÓÐ¿ÉÄÜ ºÍ  QoS1 -> broker-> QoS2 Ò»Ñù
+        // å…¶å®ž P(Qos1)ã€S(Qos1) == P(Qos1)ã€S(Qos2)  å¯èƒ½ä½ ä¼šç–‘é—®  æ—¢ç„¶ç›¸åŒä¸ºä»€ä¹ˆ è¿™ä¸¤å—ä¸œè¥¿çš„ æ•°æ®åŒ…é¡ºåºä¸ä¸€æ ·
+        // ä½†æ³¨æ„ qos ä¸»è¦ä½œç”¨åœ¨  pubå’Œ broker ä¹‹é—´ ,   subå’Œ broker ä¹‹é—´
+        // æ‰€ä»¥
+        // æˆ‘ä»¬ QoS1 -> broker-> QoS2 çš„ æ•°æ®åŒ… é¡ºåº  ä¹Ÿæœ‰å¯èƒ½ å’Œ  QoS1 -> broker-> QoS1 ä¸€æ ·
+        // åŒæ ·çš„
+        // æˆ‘ä»¬ QoS1 -> broker-> QoS1 çš„ æ•°æ®åŒ… é¡ºåº  ä¹Ÿæœ‰å¯èƒ½ å’Œ  QoS1 -> broker-> QoS2 ä¸€æ ·
         //
         //QoS1 -> broker-> QoS2
         //53144		->	1883	MQTT		Publish Message		hello_nihao				pub 	-> broker

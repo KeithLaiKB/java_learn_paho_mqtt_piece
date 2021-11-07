@@ -43,10 +43,10 @@ public class TestMain_qos2 {
         // Subscriber	(port 40003)
         // ---------------------------
         //
-        // Qos×éºÏ
-        // 1. P(Qos2)¡¢S(Qos0)
-        // 2. P(Qos2)¡¢S(Qos1)
-        // 2. P(Qos2)¡¢S(Qos2)
+        // Qosè®¾ç½®
+        // 1. P(Qos2)->S(Qos0)
+        // 2. P(Qos2)->S(Qos1)
+        // 2. P(Qos2)->S(Qos2)
         //
         //QoS
         //connect detail about client

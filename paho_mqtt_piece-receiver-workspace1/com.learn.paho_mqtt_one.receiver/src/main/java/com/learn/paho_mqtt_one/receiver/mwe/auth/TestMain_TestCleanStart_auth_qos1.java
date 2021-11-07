@@ -26,13 +26,13 @@ import org.slf4j.LoggerFactory;
  * &emsp;						It uses qos1.																		</br>
  * &emsp;						in this class, it just change qos0 to qos1											</br>
  * 																													</br>
- * &emsp; 					ÉÔÎ¢×¢ÒâÒ»ÏÂ, ¸öÈË²»Ì«½¨Òé ¹Ø±ÕÒ»¸ö ³ÌĞòÖ®Ç°, »¹Òª unsubscribe											</br>
- * &emsp; 					¼ÙÉè ÎÒÃÇÕâ¸ösubscriberÉèÖÃÁË Qos1 »ò Qos2 (×ÜÖ®²»ÊÇqos0, ²»È»»áÖØÆôÊÕ»ñ²»µ½ Î´ÊÕµ½µÄĞÅÏ¢µÄ)						</br>
- * &emsp; 						ºÍ ÉèÖÃÁË setCleanStart(false)															</br>
- * &emsp;&emsp;	 					È»ºó ÎÒÓÃÁË ÔÚ machineA ²¿ÊğÁË clientID_1 												</br>
- * &emsp;&emsp;&emsp;	 					´ËÊ±, ÎÒÖ±½ÓshutdownÁË Õâ¸ösubscriber,   										</br>
- * &emsp;&emsp;&emsp;	 					ÔÚshutdownÖ®ºó, publisher·¢ËÍÁË 78910µ½broker, ÒòÎªshutdown ËùÒÔÃ»ÓĞ±»subscriber ½ÓÊÕ </br>
- * &emsp;&emsp;&emsp;	 					µ±ÎÒ  ÓÃÍ¬ÑùµÄclientID_1   ²¿ÊğÔÚ ÁíÍâÒ»¸ö  machineB, ÄÇÃ´ËüÈÔÈ»ÄÜ»ñµÃ 78910, Èç¹ûÄãÊ¹ÓÃÁËunsubscribe ÄÇÃ´ machineB ¾ÍÎŞ·¨»ñµÃ 78910 ÁË 	</br>
+ * &emsp; 					ç¨å¾®æ³¨æ„ä¸€ä¸‹, ä¸ªäººä¸å¤ªå»ºè®® å…³é—­ä¸€ä¸ª ç¨‹åºä¹‹å‰, è¿˜è¦ unsubscribe											</br>
+ * &emsp; 					å‡è®¾ æˆ‘ä»¬è¿™ä¸ªsubscriberè®¾ç½®äº† Qos1 æˆ– Qos2 (æ€»ä¹‹ä¸æ˜¯qos0, ä¸ç„¶ä¼šé‡å¯æ”¶è·ä¸åˆ° æœªæ”¶åˆ°çš„ä¿¡æ¯çš„)						</br>
+ * &emsp; 						å’Œ è®¾ç½®äº† setCleanStart(false)															</br>
+ * &emsp;&emsp;	 					ç„¶å æˆ‘ç”¨äº† åœ¨ machineA éƒ¨ç½²äº† clientID_1 												</br>
+ * &emsp;&emsp;&emsp;	 					æ­¤æ—¶, æˆ‘ç›´æ¥shutdownäº† è¿™ä¸ªsubscriber,   										</br>
+ * &emsp;&emsp;&emsp;	 					åœ¨shutdownä¹‹å, publisherå‘é€äº† 78910åˆ°broker, å› ä¸ºshutdown æ‰€ä»¥æ²¡æœ‰è¢«subscriber æ¥æ”¶ </br>
+ * &emsp;&emsp;&emsp;	 					å½“æˆ‘  ç”¨åŒæ ·çš„clientID_1   éƒ¨ç½²åœ¨ å¦å¤–ä¸€ä¸ª  machineB, é‚£ä¹ˆå®ƒä»ç„¶èƒ½è·å¾— 78910, å¦‚æœä½ ä½¿ç”¨äº†unsubscribe é‚£ä¹ˆ machineB å°±æ— æ³•è·å¾— 78910 äº† 	</br>
  * </p>
  * 
  * 
@@ -80,41 +80,41 @@ public class TestMain_TestCleanStart_auth_qos1 {
             // ------------------
             // set persistence
             //
-            // Èç¹û setCleanStart(false) ÒâÎ¶×Å: 
-            // ÄãÏëÒªÈÃ 	¶©ÔÄÕß		ÔÚ	disconnect Ö®ºó  reconnect 
-            // ´ËÍâ ¸Ã 		¶©ÔÄÕß 	ÄÜ¹»°Ñ  disconnect µ½ reconnect ÆÚ¼ä 	·¢²¼Õß  ·¢ËÍµÄÏûÏ¢ ¶¼È«²¿»ñµÃ
-            // ÀıÈç
-            // publishing client 	·¢ËÍ 		1	µ½	broker
-            // subscribing client	½ÓÊÜ		1	´Ó	broker
-            // publishing client 	·¢ËÍ 		2	µ½	broker
-            // subscribing client	½ÓÊÜ		2	´Ó	broker
+            // å¦‚æœ setCleanStart(false) æ„å‘³ç€: 
+            // ä½ æƒ³è¦è®© 	è®¢é˜…è€…		åœ¨	disconnect ä¹‹å  reconnect 
+            // æ­¤å¤– è¯¥ 		è®¢é˜…è€… 	èƒ½å¤ŸæŠŠ  disconnect åˆ° reconnect æœŸé—´ 	å‘å¸ƒè€…  å‘é€çš„æ¶ˆæ¯ éƒ½å…¨éƒ¨è·å¾—
+            // ä¾‹å¦‚
+            // publishing client 	å‘é€ 		1	åˆ°	broker
+            // subscribing client	æ¥å—		1	ä»	broker
+            // publishing client 	å‘é€ 		2	åˆ°	broker
+            // subscribing client	æ¥å—		2	ä»	broker
             // subscribing client	disconnect
-            // publishing client	·¢ËÍ		3	µ½	broker
-            // publishing client	·¢ËÍ		4	µ½	broker
-            // publishing client	·¢ËÍ		5	µ½	broker
+            // publishing client	å‘é€		3	åˆ°	broker
+            // publishing client	å‘é€		4	åˆ°	broker
+            // publishing client	å‘é€		5	åˆ°	broker
             // subscribing client	reconnect
-            // subscribing client	½ÓÊÜ		3	´Ó	broker
-            // subscribing client	½ÓÊÜ		4	´Ó	broker
-            // subscribing client	½ÓÊÜ		5	´Ó	broker
+            // subscribing client	æ¥å—		3	ä»	broker
+            // subscribing client	æ¥å—		4	ä»	broker
+            // subscribing client	æ¥å—		5	ä»	broker
             //
-            // publishing client	·¢ËÍ		6	µ½	broker
-            // subscribing client	½ÓÊÜ		6	´Ó	broker
+            // publishing client	å‘é€		6	åˆ°	broker
+            // subscribing client	æ¥å—		6	ä»	broker
             //
-            // Ò²¾ÍÊÇËµ ¸Ãsubscribing client 
-            // 		Ò»¹²¿ÉÒÔ½ÓÊÜ 1 2 3 4 5 6 (¼ÙÉè ÉèÖÃµÄ»á»°¹ıÆÚÊ±¼ä(setSessionExpiryInterval) ×ã¹»µÄ³¤, ÄÜ¹»±£´æËùÓĞµÄÀëÏßĞÅÏ¢)
+            // ä¹Ÿå°±æ˜¯è¯´ è¯¥subscribing client 
+            // 		ä¸€å…±å¯ä»¥æ¥å— 1 2 3 4 5 6 (å‡è®¾ è®¾ç½®çš„ä¼šè¯è¿‡æœŸæ—¶é—´(setSessionExpiryInterval) è¶³å¤Ÿçš„é•¿, èƒ½å¤Ÿä¿å­˜æ‰€æœ‰çš„ç¦»çº¿ä¿¡æ¯)
             //
-            // Èç¹ûsetCleanStart(true) ÒâÎ¶×Å:
-            // Ò²¾ÍÊÇËµ ¸Ãsubscribing client 
-            //		Ò»¹²¿ÉÒÔ½ÓÊÜ 1 2 6
+            // å¦‚æœsetCleanStart(true) æ„å‘³ç€:
+            // ä¹Ÿå°±æ˜¯è¯´ è¯¥subscribing client 
+            //		ä¸€å…±å¯ä»¥æ¥å— 1 2 6
             //
-            // ÎÒ·¢ÏÖ publishing client ¿ÉÒÔ²»ÓÃÉèÖÃ 	connOpts.setCleanStart(false) ºÍÏÂÃæµÄ	setSessionExpiryInterval
-            // ¶øÇÒÎÒ»¹·¢ÏÖ publishing client ¾ÍËãÊÇ ÉèÖÃ connOpts.setCleanStart(true)  Ò²Ã»¹ØÏµ
+            // æˆ‘å‘ç° publishing client å¯ä»¥ä¸ç”¨è®¾ç½® 	connOpts.setCleanStart(false) å’Œä¸‹é¢çš„	setSessionExpiryInterval
+            // è€Œä¸”æˆ‘è¿˜å‘ç° publishing client å°±ç®—æ˜¯ è®¾ç½® connOpts.setCleanStart(true)  ä¹Ÿæ²¡å…³ç³»
             connOpts.setCleanStart(false);
-            // ×¢Òâ ¶©ÔÄÕß »¹ÒªÉèÖÃ »á»°¹ıÆÚÊ±¼ä, µ¥Î»ÊÇ Ãë, 
-            // Èç¹û²»ÉèÖÃµÄ»°, ËüÄ¬ÈÏÊÇ 0s, Ôò»áµ¼ÖÂ subscribing client Ò»¹²¿ÉÒÔ½ÓÊÜ 1 2 6 ¶ø²»ÊÇ  1 2 3 4 5 6
-            // ×¢Òâ Èç¹û Äã disconnect ³¬¹ıÁË Õâ¸öÊ±¼ä, ÄÇÃ´Äã reconnectÒÔºó ¾ÍÃ»°ì·¨ »ñÈ¡ÖĞ¼äµÄ 3 4 5£¬
-            // ²¢ÇÒÄãÒ²Ã»°ì·¨»ñÈ¡ reconnect ºóÃæ publishing client ·¢ËÍµÄ6,
-            // ´ËÊ±Èç¹ûÄã»¹Ïë»ñµÃ¶©ÔÄĞÅÏ¢, Äã»¹ĞèÒªÖØĞÂsubscribe
+            // æ³¨æ„ è®¢é˜…è€… è¿˜è¦è®¾ç½® ä¼šè¯è¿‡æœŸæ—¶é—´, å•ä½æ˜¯ ç§’, 
+            // å¦‚æœä¸è®¾ç½®çš„è¯, å®ƒé»˜è®¤æ˜¯ 0s, åˆ™ä¼šå¯¼è‡´ subscribing client ä¸€å…±å¯ä»¥æ¥å— 1 2 6 è€Œä¸æ˜¯  1 2 3 4 5 6
+            // æ³¨æ„ å¦‚æœ ä½  disconnect è¶…è¿‡äº† è¿™ä¸ªæ—¶é—´, é‚£ä¹ˆä½  reconnectä»¥å å°±æ²¡åŠæ³• è·å–ä¸­é—´çš„ 3 4 5ï¼Œ
+            // å¹¶ä¸”ä½ ä¹Ÿæ²¡åŠæ³•è·å– reconnect åé¢ publishing client å‘é€çš„6,
+            // æ­¤æ—¶å¦‚æœä½ è¿˜æƒ³è·å¾—è®¢é˜…ä¿¡æ¯, ä½ è¿˜éœ€è¦é‡æ–°subscribe
             connOpts.setSessionExpiryInterval(500L);
             //
             //connOpts.setCleanStart(true);
