@@ -125,9 +125,16 @@ import org.eclipse.paho.mqttv5.common.MqttMessage;
  *	为了让publisher 保存  9 10 11 12		(因为broker下线了 		publisher 	没来得及发送给  ------>broker) 
  *
  *  需要让 publisher 设置 (setBufferEnabled(true)), 
- *  当然你不设置, 9 10 11 12 这一片段就会丢失 
+ *  而且还要设置 connOpts.setAutomaticReconnect(true);
+ *  
+ *  当然你不设置, 9 10 11 12 这一片段就会丢失, 而且 没设置automaticRectionnect的基础上, 如果你没有设置reconnect之类的操作,它会出现
+ * 		 客户机未连接 (32104)
+ *		at org.eclipse.paho.mqttv5.client.internal.ExceptionHelper.createMqttException(ExceptionHelper.java:32)
+ *  即使你的broker重新打开, 发布新的 13 14 15
+ *  	都行不通, 因为此时 仍然处于 未连接的状态 
  * ++++++++++++
- *	为了让publisher 不要丢失   9 10 11 12	(因为publisher 下线了 	publisher 	没来得及发送给  ------>broker) 
+ *	为了让publisher 重新打开的时候	
+ *			还能不丢失   9 10 11 12	(因为publisher 下线了 	publisher 	没来得及发送给  ------>broker) 
  *
  *  需要让 publisher 设置 (setPersistBuffer(true)), 
  *  当然你不设置, 9 10 11 12 这一片段就会丢失 
@@ -195,6 +202,7 @@ public class TestMain_Auth_MsqtOffl_PubOffl_MsqtOnl_PubOnl {
             //
             // ------------------
             //
+            // 这个也很重要, 保证broker 下线后, 你还有机会能够重连
             connOpts.setAutomaticReconnect(true);
             //
             // -------------------------------------------------------------------------
