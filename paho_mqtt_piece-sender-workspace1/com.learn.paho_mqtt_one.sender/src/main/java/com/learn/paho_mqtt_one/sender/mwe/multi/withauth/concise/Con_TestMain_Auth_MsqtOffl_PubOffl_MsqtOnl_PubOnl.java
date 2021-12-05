@@ -106,6 +106,14 @@ import org.eclipse.paho.mqttv5.common.MqttMessage;
  * &emsp;						if when mosquitto config set 'persistence' to be true								</br>
  * &emsp;						and publisher setCleanStart(False) with interval, 									</br>
  * &emsp;						and setBufferEnabled(True), 														</br>
+ * 																													</br>
+ * &emsp;						and connOpts.setAutomaticReconnect(true);											</br>
+ * &emsp;&emsp;						though the broker is crash or the broker is offline midway,						</br>
+ * &emsp;&emsp;&emsp;					publisher will automatically try to connect the broker 						</br>
+ * &emsp;&emsp;&emsp;				at each time, publisher needs to show that he is trying to reconnect the broker	</br> 
+ * &emsp;&emsp;&emsp;					when it wants to send messages to a broker which is offline now				</br>
+ * &emsp;&emsp;&emsp;					so that the message could be saved at publisher side for sending to broker 	</br>
+ * 																													</br>
  * &emsp;						and setPersistBuffer(True), 														</br>
  * &emsp;&emsp;						though the broker is crash or the broker is offline midway,						</br>
  * &emsp;&emsp;						   and the publisher is crash or the publisher is offline midway,				</br>

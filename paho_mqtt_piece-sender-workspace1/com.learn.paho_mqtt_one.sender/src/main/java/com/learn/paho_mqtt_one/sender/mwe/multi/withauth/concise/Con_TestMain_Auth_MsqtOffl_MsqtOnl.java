@@ -96,7 +96,14 @@ import org.eclipse.paho.mqttv5.common.MqttMessage;
  * &emsp;&emsp;						though the broker is crash or the broker is offline midway,						</br>
  * &emsp;&emsp;&emsp;					broker will 																</br>
  * &emsp;&emsp;&emsp;					remember the data in broker for a while										</br>
- * 
+ * 																													</br>
+ * &emsp;						and connOpts.setAutomaticReconnect(true);											</br>
+ * &emsp;&emsp;						though the broker is crash or the broker is offline midway,						</br>
+ * &emsp;&emsp;&emsp;					publisher will automatically try to connect the broker 						</br>
+ * &emsp;&emsp;&emsp;				at each time, publisher needs to show that he is trying to reconnect the broker	</br> 
+ * &emsp;&emsp;&emsp;					when it wants to send messages to a broker which is offline now				</br>
+ * &emsp;&emsp;&emsp;					so that the message could be saved at publisher side for sending to broker 	</br>
+ * 																													</br>
  * &emsp;						and  change "MqttClient" to "MqttAsyncClient",	and change "sampleClient.connect(connOpts)"  to	"sampleClient.connect(connOpts, null, null).waitForCompletion(-1)"		</br>
  * &emsp;&emsp;						because you could not set DisconnectedBufferOptions in "MqttClient",			</br>
  * 																													</br>
