@@ -169,7 +169,7 @@ import org.eclipse.paho.mqttv5.common.MqttMessage;
  *      改成这个
  *      sampleClient.connect(connOpts, null, null).waitForCompletion(-1); 	//如果是MqttAsyncClient 贼需要这个               
  * 
- *
+ *  tryy
  */
 public class TestMain_Auth_MsqtOffl_PubOffl_MsqtOnl_PubOnl {
 	public String serverPemCertificate					="mykeystorepem.pem";
