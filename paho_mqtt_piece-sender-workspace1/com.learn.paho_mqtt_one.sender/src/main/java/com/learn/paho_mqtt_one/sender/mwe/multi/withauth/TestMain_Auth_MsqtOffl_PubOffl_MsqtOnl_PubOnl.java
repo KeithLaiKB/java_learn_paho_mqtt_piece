@@ -221,6 +221,13 @@ public class TestMain_Auth_MsqtOffl_PubOffl_MsqtOnl_PubOnl {
             // connect to broker
             System.out.println("Connecting to broker: "+brokerUri);
             //sampleClient.connect(connOpts);									//如果是MqttClient 贼需要这个
+            // waitForCompletion(-1) -> waitForCompletion(timeout)-> waitForResponse(timeout)
+            // -> if (timeout <= 0) {responseLock.wait();}
+            // -> Object类 的  wait(){wait(0)} 
+            // -> wait()
+            // -> public final native void wait(long timeout) throws InterruptedException;
+            // 也就是说 相当于 wait(0) 也就是不等待
+            // 例如 broker 没打开 连接不到 就当做连接失败
             sampleClient.connect(connOpts, null, null).waitForCompletion(-1); 	//如果是MqttAsyncClient 贼需要这个
             System.out.println("Connected");
             //

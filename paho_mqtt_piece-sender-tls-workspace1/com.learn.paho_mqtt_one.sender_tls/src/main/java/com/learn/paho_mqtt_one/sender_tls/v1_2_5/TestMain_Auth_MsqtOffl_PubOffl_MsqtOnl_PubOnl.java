@@ -1,4 +1,15 @@
-package com.learn.paho_mqtt_one.sender.mwe.multi.withauth;
+package com.learn.paho_mqtt_one.sender_tls.v1_2_5;
+
+import java.io.BufferedInputStream;
+import java.io.FileInputStream;
+import java.security.KeyStore;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateFactory;
+import java.security.cert.X509Certificate;
+
+import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManagerFactory;
 
 import org.eclipse.paho.mqttv5.client.DisconnectedBufferOptions;
 import org.eclipse.paho.mqttv5.client.IMqttToken;
@@ -24,17 +35,19 @@ import org.eclipse.paho.mqttv5.common.MqttMessage;
  *	step5(操作):	关闭 docker mosquitto		!!!!!!!!!!!!!!!!!!!!!
  *
  *	step6(数据):	publisher 	继续发送 9 10 11 12
+ *	step7(操作):	关闭 publisher				!!!!!!!!!!!!!!!!!!!!!
+ *
  *	step7(操作):	然后 启动 docker mosquitto
  *
- *	step7(数据):	然后publisher 继续发送 13 14 15
+ *	step8(数据):	然后 启动 publisher 发送 12345 (因为我设计重新启动是从 1 2 3 4 5  6 7这样发) 
  *
- *	step8(操作):	然后 启动 subscriber
- *	step9(数据):	然后 subscriber 能接受 
+ *	step9(操作):	然后 启动 subscriber
+ *	step10(数据):	然后 subscriber 能接受 
  *								4 5 6 7 8
  *								      和
  *								9 10 11 12
  *								      和
- *								13 14 15
+ *								1 2 3 4 5
  *
  *  publisher(online)	-------------> 	mosquitto(online)  -------------->	subscriber(online)
  *  publisher(online) 	----123------> 	mosquitto(online)  -------------->	subscriber(online)
@@ -47,7 +60,7 @@ import org.eclipse.paho.mqttv5.common.MqttMessage;
  *  +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
  *  +++++++++++++++++++++++++			turn off subscriber		+++++++++++++++++++++++++++++++
  *  ++++++	要设置 subscriber 的 setCleantStart(false) 和 interval, 	使得 subscriber 重启 后   broker     仍然记得 这个subscriber 						+++++++
- *  +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ *  +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
  *  publisher(online) 	-------------> 	mosquitto(online)  -------------->	subscriber(offline)
  *  publisher(online) 	----45678----> 	mosquitto(online)  -------------->	subscriber(offline)
  *  publisher(online) 	-------------> 	mosquitto(online)  -------------->	subscriber(offline)
@@ -55,9 +68,8 @@ import org.eclipse.paho.mqttv5.common.MqttMessage;
  *  
  *  +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
  *  ++++++++++++++++++++++++++ 			turn off broker			+++++++++++++++++++++++++++++++
- *  ++++++	因为 (setBufferEnabled(true)) 							使得 broker离线 时    publisher 保存	publisher 	发送不到	broker 		的 9 10 11 12	+++++++
- *  ++++++	 此外 还需要 在mosquitto.config 中 设置 persistence true		使得 broker离线 时    broker  	保存  	broker 		发送不到	subscriber	的 4 5 6 7 8 	+++++++
- *  +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ *  ++++++	因为 (setBufferEnabled(true)) 						使得 broker	离线 时    publisher 保存		publisher 	发送不到	broker 		的 9 10 11 12	+++++++
+ *  ++++++	 此外 还需要 在mosquitto.config 中 设置 persistence true	使得 broker	重启 时    broker    仍保存 		broker 		发送不到	subscriber	的 4 5 6 7 8 	+++++++
  *  publisher(online)	-------------> 	mosquitto(offline) -------------->	subscriber(offline)
  *  									   4 5 6 7 8
  *  publisher(online)	-9-10-11-12--> 	mosquitto(offline) -------------->	subscriber(offline)
@@ -66,25 +78,41 @@ import org.eclipse.paho.mqttv5.common.MqttMessage;
  *   9 10 11 12                            4 5 6 7 8
  *   
  *  +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ *  ++++++++++++++++++++++++++ 			turn off publisher			+++++++++++++++++++++++++++
+ *  ++++++	要设置  publisher 的 setCleantStart(false) 和 interval, 	使得 publisher 重启 后   broker     仍然记得 这个 publisher 							+++++++
+ *  ++++++	因为 (setPersistBuffer(true)) 使得						使得 publisher 重启 时    publisher 仍保存 	publisher 		发送不到	broker	的 9 10 11 12	+++++++
+ *  ++++++	要设置 publisher 的 MqttDefaultFilePersistence, 			使得 publisher 重启 后   publisher 仍保存 	publisher 		发送不到	broker	的 9 10 11 12+++++++
+ *  +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ *  publisher(offline)	-------------> 	mosquitto(offline) -------------->	subscriber(offline)
+ *   9 10 11 12                            4 5 6 7 8
+ *  
+ *  +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
  *  ++++++++++++++++++++++++++ 			turn on broker			+++++++++++++++++++++++++++++++
+ *  +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ *  publisher(offline)	-------------> 	mosquitto(online) -------------->	subscriber(offline)
+ *   9 10 11 12                            4 5 6 7 8
+ *   
+ *  +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ *  ++++++++++++++++++++++++++ 			turn on publisher +++++++++++++++++++++++++++++++++++++
  *  +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
  *  publisher(online)	-------------> 	mosquitto(online) -------------->	subscriber(offline)
  *   9 10 11 12                            4 5 6 7 8
- *  publisher(online)	-9-10-11-12--> 	mosquitto(online) -------------->	subscriber(offline)
+ *  publisher(online)	-9-10-11-12--> 	mosquitto(online) --------------->	subscriber(offline)
  *   		                               4 5 6 7 8
  *  publisher(online)	-------------> 	mosquitto(online) -------------->	subscriber(offline)
  *  									 45678 9 10 11 12
- *  publisher(online)	--13-14-15---> 	mosquitto(online) -------------->	subscriber(offline)
+ *  publisher(online)	----12345----> 	mosquitto(online) -------------->	subscriber(offline)
  *  									 45678 9 10 11 12
  *  publisher(online)	-------------> 	mosquitto(online) -------------->	subscriber(offline)
- *  							     45678 9 10 11 12 13 14 15
+ *  							     45678 9 10 11 12 12345
  *  
  *  +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
  *  ++++++++++++++++++++++++++ 			turn on subscriber			+++++++++++++++++++++++++++
  *  +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
  *  publisher(online)	-------------> 	mosquitto(online) -456789101112131415-->subscriber(online)
  *  publisher(online)	-------------> 	mosquitto(online) --------------------->subscriber(online)
- *  							     									456789 10 11 12 13 14 15 							
+ *  							     									456789 10 11 12 123456							
+ *
  *
  * ++++++++++++
  * 为了让broker保存  45678(因为broker下线了 				broker		没来得及发送给  ------>subscriber) 
@@ -98,14 +126,14 @@ import org.eclipse.paho.mqttv5.common.MqttMessage;
  * 因为 broker需要保存 		
  * 
  * 因为broker需要记得 subscriber
- * 在这里 还需要设置 subscriber !!!!!! 在这个例子中无论你是否中途关掉subscriber 都要这么设置
+ * 在这里 还需要设置 subscriber 
  * 	connOpts.setCleanStart(false);
  * 	connOpts.setSessionExpiryInterval(500L);		//500是个时间 你可以随便设置
  * 
  * subscriber关闭后	 重启 		就可以直接获得 45678
  *
  * ++++++++++++
- *	为了让publisher 保存  9 10 11 12(因为broker下线了 	publisher 	没来得及发送给  ------>broker) 
+ *	为了让publisher 保存  9 10 11 12		(因为broker下线了 		publisher 	没来得及发送给  ------>broker) 
  *
  *  需要让 publisher 设置 (setBufferEnabled(true)), 
  *  而且还要设置 connOpts.setAutomaticReconnect(true);
@@ -114,31 +142,28 @@ import org.eclipse.paho.mqttv5.common.MqttMessage;
  * 		 客户机未连接 (32104)
  *		at org.eclipse.paho.mqttv5.client.internal.ExceptionHelper.createMqttException(ExceptionHelper.java:32)
  *  即使你的broker重新打开, 发布新的 13 14 15
- *  	都行不通, 因为此时 仍然处于 未连接的状态
+ *  	都行不通, 因为此时 仍然处于 未连接的状态 
+ * ++++++++++++
+ *	为了让publisher 重新打开的时候	
+ *			还能不丢失   9 10 11 12	(因为publisher 下线了 	publisher 	没来得及发送给  ------>broker) 
+ *
+ *  需要让 publisher 设置 (setPersistBuffer(true)), 
+ *  当然你不设置, 9 10 11 12 这一片段就会丢失 
  * +++++++++++++++++++++++++++++++++
- * 也就是说 这个例子 聚合了两个功能
+ * 也就是说 这个例子 聚合了三个功能
  * publisher 记住publisher 			未发送的	(publisher 一直在线, 没有重启)
  * broker    记住broker		重启前 	 未发送的
+ * publisher 记住publisher	重启前 	 未发送的
  * 
  * 你在使用的时候看你需要 选择只添加哪一块, 
  * 	我只是这里给了一个 比较自己常用的 解决方案
  * 		因为 自己希望subscriber能记住 所有的东西
  * 
  * +++++++++++++++++++++++++++++++++
- * 
- * 在这例子的设置当中:
- * 
- * 衍生小case1:
- * 无论 是否  中途 停止publisher, 
- * 只要是这个数据已经停留在broker当中
- * 在这例子的设置当中, 就算是重启后, 即使publisher没有重启
- * 当 subscriber重启后 都能够获得broker中存储的数据
- *
- * +++++++++++++++++++++++++++++++++
  *
  * 由于要设置 DisconnectedBufferOptions
  * MqttClient 这个类比较简单, 无法直接设置
- * 所以 把 MqttClient 改成用 MqttAsyncClient
+ * 所以改成用 MqttAsyncClient
  * 因此要把
  *      sampleClient.connect(connOpts);										//如果是MqttClient 贼需要这个
  *      改成这个
@@ -146,11 +171,32 @@ import org.eclipse.paho.mqttv5.common.MqttMessage;
  * 
  *
  */
-public class TestMain_Auth_MsqtOffl_MsqtOnl {
-
+public class TestMain_Auth_MsqtOffl_PubOffl_MsqtOnl_PubOnl {
+	public String serverPemCertificate					="mykeystorepem.pem";
+	public String serverTrustStorePemCertificate		="mykeystore_truststorepem.pem";
+	public String serverPemCertificate_dir				="/mycerts/my_own";
+	public String serverTrustStorePemCertificate_dir	="/mycerts/my_own";
+	
+	
+	
+	public String clientPemCertificate					="myclientakeystorepem.pem";
+	public String clientTrustStorePemCertificate		="myclientakeystore_truststorepem.pem";
+	public String clientPemCertificate_dir				="/mycerts/my_own";
+	public String clientTrustStorePemCertificate_dir	="/mycerts/my_own";
+	
+	
+	private static String serverPemCertificate_loc = null;
+	private static String serverTrustStorePemCertificate_loc = null;
+	private static String clientPemCertificate_loc = null;
+	private static String clientTrustStorePemCertificate_loc = null;
+	
 	public static void main(String[] args) {
+		new TestMain_Auth_MsqtOffl_PubOffl_MsqtOnl_PubOnl().run();
+    }
 
-        //String topic      = "MQTT Examples";
+	public void run() {
+
+        //String topic   	= "MQTT Examples";
         String topic        = "sensors/temperature";
         //String content    = "Message from MqttPublishSample";
         String content      = "hello";
@@ -162,19 +208,62 @@ public class TestMain_Auth_MsqtOffl_MsqtOnl {
         String myuserName	= "IamPublisherOne";
         String mypwd		= "123456";
         
+        
+        
+		String myusr_path = System.getProperty("user.dir");
+		clientPemCertificate_loc 				=	myusr_path	+ clientPemCertificate_dir					+"/" +	clientPemCertificate;
+		clientTrustStorePemCertificate_loc 		= 	myusr_path	+ clientTrustStorePemCertificate_dir		+"/" + 	clientTrustStorePemCertificate;
+        
+        
+        
+        
+        X509Certificate caCert = null;
 
+		FileInputStream fis = new FileInputStream(clientPemCertificate_loc);
+		BufferedInputStream bis = new BufferedInputStream(fis);
+		CertificateFactory cf = CertificateFactory.getInstance("X.509");
 
+		while (bis.available() > 0) {
+			caCert = (X509Certificate) cf.generateCertificate(bis);
+			// System.out.println(caCert.toString());
+		}
+		
+		// load client certificate
+		bis = new BufferedInputStream(new FileInputStream(crtFile));
+		X509Certificate cert = null;
+		while (bis.available() > 0) {
+			cert = (X509Certificate) cf.generateCertificate(bis);
+			// System.out.println(caCert.toString());
+		}
+        
+        KeyStore caKs = KeyStore.getInstance(KeyStore.getDefaultType());
+		caKs.load(null, null);
+		caKs.setCertificateEntry("ca-certificate", caCert);
+		TrustManagerFactory tmf = TrustManagerFactory.getInstance("X509");
+		tmf.init(caKs);
+        
+        
+        
+        KeyManagerFactory kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
+		kmf.init(ks, password.toCharArray());
+        try {
+			SSLContext sslContext = SSLContext.getInstance("TLS");
+		} catch (NoSuchAlgorithmException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+        
         try {
         	//MqttClient sampleClient = new MqttClient(brokerUri, clientId, new MemoryPersistence());
-        	//MqttAsyncClient sampleClient = new MqttAsyncClient(brokerUri, clientId, new MqttDefaultFilePersistence());
-        	MqttAsyncClient sampleClient = new MqttAsyncClient(brokerUri, clientId, new MemoryPersistence());
+        	MqttAsyncClient sampleClient = new MqttAsyncClient(brokerUri, clientId, new MqttDefaultFilePersistence());
+        	//MqttAsyncClient sampleClient = new MqttAsyncClient(broker, clientId, new MemoryPersistence());
         	//
         	// -----------------------set connection options-------------------------
         	// 
             MqttConnectionOptions connOpts = new MqttConnectionOptions();
-            //connOpts.setCleanStart(false);
-            //connOpts.setSessionExpiryInterval(500L);
-            connOpts.setCleanStart(true);
+            connOpts.setCleanStart(false);
+            connOpts.setSessionExpiryInterval(500L);
+            //connOpts.setCleanStart(true);
             //
             //
             // ------------------
@@ -197,8 +286,8 @@ public class TestMain_Auth_MsqtOffl_MsqtOnl {
             DisconnectedBufferOptions disconnect_bfOpt_1=new DisconnectedBufferOptions();
             // 初始化disconnectedBufferOptions
             disconnect_bfOpt_1.setBufferSize(100);				//离线后最多缓存100条
-            disconnect_bfOpt_1.setPersistBuffer(false);  		//不一直持续留存
-            disconnect_bfOpt_1.setDeleteOldestMessages(false);	//删除旧消息
+            disconnect_bfOpt_1.setPersistBuffer(true);  		//一直持续留存
+            disconnect_bfOpt_1.setDeleteOldestMessages(false);	//不删除旧消息
             disconnect_bfOpt_1.setBufferEnabled(true);			//断开连接后进行缓存
             sampleClient.setBufferOpts(disconnect_bfOpt_1);
             // -------------------------------------------------------------------------
@@ -259,6 +348,5 @@ public class TestMain_Auth_MsqtOffl_MsqtOnl {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-    }
-
+	}
 }
