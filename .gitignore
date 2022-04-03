@@ -26,3 +26,6 @@ hs_err_pid*
 # /**/mycerts/**/*.jks
 # /**/mycerts/**/*.cer
 /**/.metadata/
+
+# for it would run on other machine, like raspberry pi
+/**/.classpath
