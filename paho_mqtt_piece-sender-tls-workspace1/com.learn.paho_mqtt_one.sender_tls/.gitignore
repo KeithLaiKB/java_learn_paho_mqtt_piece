@@ -1,3 +1,4 @@
 /target/
 # for eclipse in raspberrypi would create 'bin' folder
+# ./bin doesn't work, we should use bin/
 bin/
