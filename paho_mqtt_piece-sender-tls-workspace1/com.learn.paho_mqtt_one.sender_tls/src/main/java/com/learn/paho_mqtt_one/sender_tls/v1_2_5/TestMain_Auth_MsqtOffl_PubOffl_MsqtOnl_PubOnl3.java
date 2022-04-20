@@ -179,7 +179,7 @@ import org.eclipse.paho.mqttv5.common.MqttMessage;
  * 
  *  tryy
  */
-public class TestMain_Auth_MsqtOffl_PubOffl_MsqtOnl_PubOnl {
+public class TestMain_Auth_MsqtOffl_PubOffl_MsqtOnl_PubOnl3 {
 	public String serverPemCertificate					="mykeystorepem.pem";
 	public String serverTrustStorePemCertificate		="mykeystore_truststorepem.pem";
 	public String serverPemCertificate_dir				="/mycerts/my_own";
@@ -204,7 +204,7 @@ public class TestMain_Auth_MsqtOffl_PubOffl_MsqtOnl_PubOnl {
 	private static String serverCaCrt_file_loc = null;
 	
 	public static void main(String[] args) {
-		new TestMain_Auth_MsqtOffl_PubOffl_MsqtOnl_PubOnl().run();
+		new TestMain_Auth_MsqtOffl_PubOffl_MsqtOnl_PubOnl3().run();
     }
 
 	public void run() {
@@ -239,7 +239,8 @@ public class TestMain_Auth_MsqtOffl_PubOffl_MsqtOnl_PubOnl {
 
 
         //////////////////// file->FileInputStream->BufferedInputStream->X509Certificate //////////////////////////////////////
-		FileInputStream fis = null;
+        
+        FileInputStream fis = null;
 		BufferedInputStream bis = null;
 		CertificateFactory cf=null;
 		try {
@@ -249,7 +250,7 @@ public class TestMain_Auth_MsqtOffl_PubOffl_MsqtOnl_PubOnl {
 			
 			while (bis.available() > 0) {
 				serverCaCrt = (X509Certificate) cf.generateCertificate(bis);
-				// System.out.println(caCert.toString());
+				 //System.out.println(serverCaCrt.toString());
 			}
 		} catch (FileNotFoundException e2) {
 			// TODO Auto-generated catch block
@@ -262,68 +263,24 @@ public class TestMain_Auth_MsqtOffl_PubOffl_MsqtOnl_PubOnl {
 			e.printStackTrace();
 		}
 
-
 		
-		/*
-		// load CA certificate
-		bis = new BufferedInputStream(new FileInputStream(crtFile));
-		X509Certificate cert = null;
-		while (bis.available() > 0) {
-			cert = (X509Certificate) cf.generateCertificate(bis);
-			// System.out.println(caCert.toString());
-		}
-        
-		// load client certificate
-				bis = new BufferedInputStream(new FileInputStream(crtFile));
-				X509Certificate cert = null;
-				while (bis.available() > 0) {
-					cert = (X509Certificate) cf.generateCertificate(bis);
-					// System.out.println(caCert.toString());
-				}
-
-				// load client private key
-				PEMParser pemParser = new PEMParser(new FileReader(keyFile));
-				Object object = pemParser.readObject();
-				PEMDecryptorProvider decProv = new JcePEMDecryptorProviderBuilder()
-						.build(password.toCharArray());
-				JcaPEMKeyConverter converter = new JcaPEMKeyConverter()
-						.setProvider("BC");
-				KeyPair key;
-				if (object instanceof PEMEncryptedKeyPair) {
-					System.out.println("Encrypted key - we will use provided password");
-					key = converter.getKeyPair(((PEMEncryptedKeyPair) object)
-							.decryptKeyPair(decProv));
-				} else {
-					System.out.println("Unencrypted key - no password needed");
-					key = converter.getKeyPair((PEMKeyPair) object);
-				}
-				pemParser.close();
-		 */
-        
-        
 		// CA certificate is used to authenticate server
 		KeyStore caKs = null;
 		TrustManagerFactory tmf = null;
 
 		try {
 			
-			caKs = KeyStore.getInstance(KeyStore.getDefaultType());
-			caKs.load(null, null);
+			//caKs = KeyStore.getInstance(KeyStore.getDefaultType());
+			//caKs.load(null, null);
 			//caKs.setCertificateEntry("ca-certificate", serverCaCrt);
-			caKs.setCertificateEntry("", serverCaCrt);
+			//caKs.setCertificateEntry("", serverCaCrt);
 			tmf = TrustManagerFactory.getInstance("X509");
-			tmf.init(caKs);
+			tmf.init((KeyStore) null);
 			
 		} catch (KeyStoreException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (NoSuchAlgorithmException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		} catch (CertificateException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		} catch (IOException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
@@ -341,6 +298,7 @@ public class TestMain_Auth_MsqtOffl_PubOffl_MsqtOnl_PubOnl {
 		kmf.init(ks, password.toCharArray());	
 		*/
 		
+		/*
 		KeyManagerFactory kmf=null;
 		try {
 			kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
@@ -348,14 +306,7 @@ public class TestMain_Auth_MsqtOffl_PubOffl_MsqtOnl_PubOnl {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
-		/*
-		try {
-			kmf.init(null);
-			
-		} catch (InvalidAlgorithmParameterException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}*/
+
 		
 		
 		
@@ -371,7 +322,7 @@ public class TestMain_Auth_MsqtOffl_PubOffl_MsqtOnl_PubOnl {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
-		
+		*/
 		
 		// finally, create SSL socket factory
 		SSLContext context=null;
@@ -379,7 +330,8 @@ public class TestMain_Auth_MsqtOffl_PubOffl_MsqtOnl_PubOnl {
 		try {
 			context = SSLContext.getInstance("TLSv1.2");
 			//context.init(kmf.getKeyManagers(), tmf.getTrustManagers(), null);
-			context.init(kmf.getKeyManagers(),tmf.getTrustManagers(), new java.security.SecureRandom());
+			//context.init(kmf.getKeyManagers(),tmf.getTrustManagers(), new java.security.SecureRandom());
+			context.init(null,tmf.getTrustManagers(), new java.security.SecureRandom());
 			
 		} catch (NoSuchAlgorithmException e2) {
 			// TODO Auto-generated catch block
@@ -389,7 +341,7 @@ public class TestMain_Auth_MsqtOffl_PubOffl_MsqtOnl_PubOnl {
 			e.printStackTrace();
 		}
 		mysocketFactory = context.getSocketFactory();
-				
+			
         
         try {
         	//MqttClient sampleClient = new MqttClient(brokerUri, clientId, new MemoryPersistence());

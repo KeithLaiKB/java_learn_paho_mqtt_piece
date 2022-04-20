@@ -149,7 +149,7 @@ public class TestMain_Auth_SubOffl_SubOnl {
             		me.printStackTrace();
             	}
                 //
-                Thread.sleep(3000);
+                Thread.sleep(500);
             }
             
             System.out.println("Message published");

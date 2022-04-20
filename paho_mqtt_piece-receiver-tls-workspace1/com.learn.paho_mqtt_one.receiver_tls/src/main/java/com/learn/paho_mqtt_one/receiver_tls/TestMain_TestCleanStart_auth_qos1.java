@@ -1,8 +1,23 @@
 package com.learn.paho_mqtt_one.receiver_tls;
 
 
+import java.io.BufferedInputStream;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.security.KeyManagementException;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.Certificate;
+import java.security.cert.CertificateException;
+import java.security.cert.CertificateFactory;
 import java.util.Scanner;
 
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSocketFactory;
+import javax.net.ssl.TrustManagerFactory;
 
 import org.eclipse.paho.mqttv5.client.IMqttToken;
 import org.eclipse.paho.mqttv5.client.MqttCallback;
@@ -40,7 +55,10 @@ import org.slf4j.LoggerFactory;
  *
  */
 public class TestMain_TestCleanStart_auth_qos1 {
+	
+	
 
+	
 	public static void main(String[] args) {
 
         //String topic        = "MQTT Examples";
@@ -49,7 +67,8 @@ public class TestMain_TestCleanStart_auth_qos1 {
         String content      = "receiver";
         int qos             = 1;
         //String broker       = "tcp://iot.eclipse.org:1883";
-        String broker       = "tcp://localhost:1883";
+        //String broker       = "tcp://localhost:1883";
+        String brokerUri    = "ssl://192.168.239.137:8883";
         //String clientId     = "JavaSample";
         String clientId     = "JavaSample_revcevier";
         
@@ -60,10 +79,111 @@ public class TestMain_TestCleanStart_auth_qos1 {
 
         final Logger LOGGER = LoggerFactory.getLogger(TestMain_TestCleanStart_auth_qos1.class);
         //
+        
+    	//public String serverCaCrt_file					="server_cert.crt";
+    	String serverCaCrt_file					="s_cacert.crt";
+    	//public String serverCaCrt_file					="s_cacert.pem";
+    	//public String serverCaCrt_file_dir				="/mycerts/my_own/samecn";	//从这里就可以看出, 我如果用不正确的证书会出问题的
+    	String serverCaCrt_file_dir				="/mycerts/my_own";
+    	String serverCaCrt_file_loc = null;
+    	
+    	
+        
+        
+        
+        String myusr_path = System.getProperty("user.dir");
+
+		serverCaCrt_file_loc 							= 	myusr_path	+ serverCaCrt_file_dir		+"/" + 	serverCaCrt_file;
+	         
+        
+		////////////////////file->FileInputStream->BufferedInputStream->X509Certificate //////////////////////////////////////
+		// ref: https://gist.github.com/erickok/7692592
+		
+		FileInputStream fis= null;
+		CertificateFactory cf = null;
+		Certificate ca=null;
+		try {
+		cf = CertificateFactory.getInstance("X.509");
+		// From https://www.washington.edu/itconnect/security/ca/load-der.crt
+		fis = new FileInputStream(serverCaCrt_file_loc);
+		InputStream caInput = new BufferedInputStream(fis);
+		
+		try {
+			ca = cf.generateCertificate(caInput);
+			// System.out.println("ca=" + ((X509Certificate) ca).getSubjectDN());
+		} finally {
+			caInput.close();
+		}
+		} catch (FileNotFoundException e2) {
+		// TODO Auto-generated catch block
+		e2.printStackTrace();
+		} catch (CertificateException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+		} catch (IOException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+		}
+		
+		
+		// Create a KeyStore containing our trusted CAs
+		String keyStoreType = KeyStore.getDefaultType();
+		KeyStore keyStore=null;
+		TrustManagerFactory tmf = null;
+		try {
+		// Create a KeyStore containing our trusted CAs
+		keyStoreType = KeyStore.getDefaultType();
+		keyStore = KeyStore.getInstance(keyStoreType);
+		keyStore.load(null, null);
+		keyStore.setCertificateEntry("ca", ca);
+		
+		// Create a TrustManager that trusts the CAs in our KeyStore
+		String tmfAlgorithm = TrustManagerFactory.getDefaultAlgorithm();
+		tmf = TrustManagerFactory.getInstance(tmfAlgorithm);
+		tmf.init(keyStore);
+		} catch (KeyStoreException e1) {
+		// TODO Auto-generated catch block
+		e1.printStackTrace();
+		} catch (NoSuchAlgorithmException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+		} catch (CertificateException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+		} catch (IOException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+		}
+		
+		
+		
+		
+		
+		// finally, create SSL socket factory
+		SSLContext context=null;
+		SSLSocketFactory mysocketFactory=null;
+		try {
+		//context = SSLContext.getInstance("SSL");
+		context = SSLContext.getInstance("TLSv1.3");
+		
+		//context.init(kmf.getKeyManagers(), tmf.getTrustManagers(), null);
+		//context.init(null,tmf.getTrustManagers(), new java.security.SecureRandom());
+		//context.init(null,tmf.getTrustManagers(), null);
+		context.init(null, tmf.getTrustManagers(), new java.security.SecureRandom());
+		} catch (NoSuchAlgorithmException e2) {
+		// TODO Auto-generated catch block
+		e2.printStackTrace();
+		} catch (KeyManagementException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+		}
+		mysocketFactory = context.getSocketFactory();
+		        
+        
         //
         try {
         	// create mqtt client
-            MqttClient sampleClient = new MqttClient(broker, clientId, new MemoryPersistence());
+            MqttClient sampleClient = new MqttClient(brokerUri, clientId, new MemoryPersistence());
             //MqttClient sampleClient = new MqttClient(broker, clientId);
         	//
         	// -----------------------set connection options-------------------------
@@ -118,6 +238,14 @@ public class TestMain_TestCleanStart_auth_qos1 {
             connOpts.setSessionExpiryInterval(500L);
             //
             //connOpts.setCleanStart(true);
+            //            //
+            //
+            //-------------set TLS/SSL-------
+            connOpts.setSocketFactory(mysocketFactory);
+            connOpts.setHttpsHostnameVerificationEnabled(false);
+            //
+            //
+            // ------------------
             //
             // -------------------------------------------------------------------------
             // -----------------------set handler for asynchronous request--------------
@@ -181,7 +309,7 @@ public class TestMain_TestCleanStart_auth_qos1 {
             // ---------------- to connect and to subscribe ----------------------------
             //
             // connect
-            System.out.println("Connecting to broker: "+broker);
+            System.out.println("Connecting to broker: "+brokerUri);
             sampleClient.connect(connOpts);
             System.out.println("Connected");
             System.out.println("subsribing message topic: " + topic);
