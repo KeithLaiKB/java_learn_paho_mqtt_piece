@@ -24,9 +24,9 @@ hs_err_pid*
 
 # mysettings
 # /**/mycerts/**/*.jks
-# /**/mycerts/**/*.cer
-# /**/mycerts/**/*.pem
-# /**/mycerts/**/*.crt
+#/**/mycerts/**/*.cer
+/**/mycerts/**/*.pem
+/**/mycerts/**/*.crt
 
 /**/.metadata/
 
