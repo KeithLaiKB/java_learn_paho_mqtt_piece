@@ -25,6 +25,9 @@ hs_err_pid*
 # mysettings
 # /**/mycerts/**/*.jks
 # /**/mycerts/**/*.cer
+# /**/mycerts/**/*.pem
+# /**/mycerts/**/*.crt
+
 /**/.metadata/
 
 # for it would run on other machine, like raspberry pi
