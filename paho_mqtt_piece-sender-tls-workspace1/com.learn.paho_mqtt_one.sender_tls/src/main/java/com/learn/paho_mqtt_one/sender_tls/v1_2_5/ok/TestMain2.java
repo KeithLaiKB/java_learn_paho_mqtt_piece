@@ -190,7 +190,7 @@ import org.eclipse.paho.mqttv5.common.MqttMessage;
  *  所以我推断 仍然需要CA的
  *  
  */
-public class TestMain_Auth_MsqtOffl_PubOffl_MsqtOnl_PubOnl5 {
+public class TestMain2 {
 	public String serverPemCertificate					="mykeystorepem.pem";
 	public String serverTrustStorePemCertificate		="mykeystore_truststorepem.pem";
 	public String serverPemCertificate_dir				="/mycerts/my_own";
@@ -217,7 +217,7 @@ public class TestMain_Auth_MsqtOffl_PubOffl_MsqtOnl_PubOnl5 {
 	private static String serverCaCrt_file_loc = null;
 	
 	public static void main(String[] args) {
-		new TestMain_Auth_MsqtOffl_PubOffl_MsqtOnl_PubOnl5().run();
+		new TestMain2().run();
     }
 
 	public void run() {
@@ -231,8 +231,6 @@ public class TestMain_Auth_MsqtOffl_PubOffl_MsqtOnl_PubOnl5 {
         //String brokerUri    = "tcp://localhost:1883";
         //String brokerUri    = "tcp://192.168.239.137:1883";
         String brokerUri    = "ssl://192.168.239.137:8883";
-        //String brokerUri    = "ssl://127.0.0.1:8883";				//我发现ca是noname servercrt虽然设置的是192.168.239.137:8883 但是还是可以用127.0.0.1来访问
-        
         String clientId     = "JavaSample";
         
         String myuserName	= "IamPublisherOne";
@@ -247,11 +245,6 @@ public class TestMain_Auth_MsqtOffl_PubOffl_MsqtOnl_PubOnl5 {
 		
 		
 		serverCaCrt_file_loc 							= 	myusr_path	+ serverCaCrt_file_dir		+"/" + 	serverCaCrt_file;
-	         
-        
-        
-        X509Certificate serverCaCrt = null;
-
 
         //////////////////// file->FileInputStream->BufferedInputStream->X509Certificate //////////////////////////////////////
         // ref: https://gist.github.com/erickok/7692592
@@ -267,7 +260,6 @@ public class TestMain_Auth_MsqtOffl_PubOffl_MsqtOnl_PubOnl5 {
 			
 			try {
 				ca = cf.generateCertificate(caInput);
-				// System.out.println("ca=" + ((X509Certificate) ca).getSubjectDN());
 			} finally {
 				caInput.close();
 			}
@@ -299,44 +291,29 @@ public class TestMain_Auth_MsqtOffl_PubOffl_MsqtOnl_PubOnl5 {
 			tmf = TrustManagerFactory.getInstance(tmfAlgorithm);
 			tmf.init(keyStore);
 		} catch (KeyStoreException e1) {
-			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		} catch (NoSuchAlgorithmException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (CertificateException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
-		
-		
-		
 		
 		// finally, create SSL socket factory
 		SSLContext context=null;
 		SSLSocketFactory mysocketFactory=null;
 		try {
-			//context = SSLContext.getInstance("SSL");
 			context = SSLContext.getInstance("TLSv1.3");
-			
-			//context.init(kmf.getKeyManagers(), tmf.getTrustManagers(), null);
-			//context.init(null,tmf.getTrustManagers(), new java.security.SecureRandom());
-			//context.init(null,tmf.getTrustManagers(), null);
 			context.init(null, tmf.getTrustManagers(), new java.security.SecureRandom());
 		} catch (NoSuchAlgorithmException e2) {
-			// TODO Auto-generated catch block
 			e2.printStackTrace();
 		} catch (KeyManagementException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		mysocketFactory = context.getSocketFactory();
-				
-        
+		////////////////////////////////////////////////////////////////////////////
+		
         try {
         	//MqttClient sampleClient = new MqttClient(brokerUri, clientId, new MemoryPersistence());
         	MqttAsyncClient sampleClient = new MqttAsyncClient(brokerUri, clientId, new MqttDefaultFilePersistence());
@@ -350,11 +327,10 @@ public class TestMain_Auth_MsqtOffl_PubOffl_MsqtOnl_PubOnl5 {
             //connOpts.setCleanStart(true);
             //
             //
+            //
             //-------------set TLS/SSL-------
             connOpts.setSocketFactory(mysocketFactory);
             connOpts.setHttpsHostnameVerificationEnabled(false);
-            //
-            //
             // ------------------
             // authentication
             //
@@ -363,7 +339,6 @@ public class TestMain_Auth_MsqtOffl_PubOffl_MsqtOnl_PubOnl5 {
             // however, gernerally, the broker is deployed in the server, so the client would not in the same machine
             connOpts.setUserName(myuserName);
             connOpts.setPassword(mypwd.getBytes());
-            //
             // ------------------
             //
             // 这个也很重要, 保证broker 下线后, 你还有机会能够重连
@@ -379,11 +354,8 @@ public class TestMain_Auth_MsqtOffl_PubOffl_MsqtOnl_PubOnl5 {
             disconnect_bfOpt_1.setDeleteOldestMessages(false);	//不删除旧消息
             disconnect_bfOpt_1.setBufferEnabled(true);			//断开连接后进行缓存
             sampleClient.setBufferOpts(disconnect_bfOpt_1);
+            //
             // -------------------------------------------------------------------------
-            //
-        
-            
-            //
             // connect to broker
             System.out.println("Connecting to broker: "+brokerUri);
             //sampleClient.connect(connOpts);									//如果是MqttClient 贼需要这个
