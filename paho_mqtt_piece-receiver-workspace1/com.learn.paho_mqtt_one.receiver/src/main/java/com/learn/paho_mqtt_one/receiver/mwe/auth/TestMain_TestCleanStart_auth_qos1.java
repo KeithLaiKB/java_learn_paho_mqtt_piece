@@ -49,7 +49,7 @@ public class TestMain_TestCleanStart_auth_qos1 {
         String content      = "receiver";
         int qos             = 1;
         //String broker       = "tcp://iot.eclipse.org:1883";
-        String broker       = "tcp://localhost:1883";
+        String broker       = "tcp://192.168.50.179:1883";
         //String clientId     = "JavaSample";
         String clientId     = "JavaSample_revcevier";
         
