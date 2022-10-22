@@ -157,7 +157,7 @@ public class TestMain_Auth_MsqtOffl_MsqtOnl {
         int qos             = 1;
         //String broker     = "tcp://iot.eclipse.org:1883";
         String brokerUri    = "tcp://135.0.237.84:1883";
-        String clientId     = "JavaSample";
+        String clientId     = "JavaSample_sender";
         
         String myuserName	= "IamPublisherOne";
         String mypwd		= "123456";

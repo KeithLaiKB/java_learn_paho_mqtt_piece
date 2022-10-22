@@ -41,7 +41,7 @@ public class TestMain_qos1 {
 
         String brokerUri       	= "tcp://localhost:1883";
 
-        String clientId     	= "JavaSample_revcevier";
+        String clientId     	= "JavaSample_recver";
         MemoryPersistence persistence = new MemoryPersistence();
         //
         final Logger LOGGER = LoggerFactory.getLogger(TestMain_qos1.class);

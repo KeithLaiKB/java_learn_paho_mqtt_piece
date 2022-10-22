@@ -75,15 +75,24 @@ public class TestMain_Auth_SubOffl_SubOnl {
         String content      = "hello";
         int qos             = 1;
         //String broker     = "tcp://iot.eclipse.org:1883";
-        String brokerUri    = "tcp://135.0.237.84:1883";
-        String clientId     = "JavaSample";
+        String brokerUri    = "tcp://192.168.239.137:1883";		//"tcp://135.0.237.84:1883"
+        String clientId     = "JavaSample_sender";						//10chars		10bytes
         
-        String myuserName	= "IamPublisherOne";
-        String mypwd		= "123456";
+        String myuserName	= "IamPublisherOne";				//15chars		15bytes
+        String mypwd		= "123456";							//6chars		16bytes
         
 
 
         try {
+        	System.out.println(clientId.toCharArray().length);
+        	System.out.println(myuserName.toCharArray().length);
+        	System.out.println(mypwd.toCharArray().length);
+        	
+        	System.out.println(clientId.getBytes().length);
+        	System.out.println(myuserName.getBytes().length);
+        	System.out.println(mypwd.getBytes().length);
+        	
+        	
         	//MqttAsyncClient sampleClient = new MqttAsyncClient(brokerUri, clientId, new MqttDefaultFilePersistence());
         	MqttClient sampleClient = new MqttClient(brokerUri, clientId, new MemoryPersistence());
         	//

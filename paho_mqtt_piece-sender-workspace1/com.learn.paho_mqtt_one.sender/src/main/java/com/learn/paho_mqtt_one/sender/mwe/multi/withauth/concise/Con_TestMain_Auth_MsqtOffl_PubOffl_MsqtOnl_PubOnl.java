@@ -142,7 +142,7 @@ public class Con_TestMain_Auth_MsqtOffl_PubOffl_MsqtOnl_PubOnl {
         int qos             = 1;
 
         String brokerUri    = "tcp://localhost:1883";
-        String clientId     = "JavaSample";
+        String clientId     = "JavaSample_sender";
         
         String myuserName	= "IamPublisherOne";
         String mypwd		= "123456";
