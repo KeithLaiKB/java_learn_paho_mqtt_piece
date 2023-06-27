@@ -35,7 +35,7 @@ public class TestContentUpdate_qos2_auth {
         // ---------------------------
         //
         //
-        // P(Qos0)¡¢S(Qos0) == P(Qos0)¡¢S(Qos1) == P(Qos0)¡¢S(Qos2) 
+        // P(Qos0)->S(Qos0) == P(Qos0)->S(Qos1) == P(Qos0)->S(Qos2) 
         //
         //
         //QoS0

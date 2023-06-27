@@ -153,6 +153,7 @@ public class TestMain_Auth_SubOffl_SubOnl {
             		*/
                 	System.out.println("Publishing message: "+str_content_tmp);
                     sampleClient.publish(topic, message_tmp);
+                    //sampleClient.publish(topic+"1", message_tmp);
             	}
             	catch(MqttException me) {
             		me.printStackTrace();
